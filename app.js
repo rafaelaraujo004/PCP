@@ -20,11 +20,10 @@ load();
 let currentTab='dash';
 const TABS=[
   {id:'dash',name:'Dashboard'},
-  {id:'rap',name:'Rápido'},
   {id:'os',name:'OS'},
   {id:'atv',name:'Atividades'},
   {id:'wc',name:'Frentes/Centros'},
-  {id:'rot',name:'Roteiros'},
+  // {id:'rot',name:'Roteiros'},
   {id:'sched',name:'Agenda'}
 ];
 
@@ -54,7 +53,6 @@ function render(){
   renderTabs();
   const m=$('#app'); m.innerHTML='';
   if(currentTab==='dash') renderDash(m);
-  if(currentTab==='rap') renderRapido(m);
   if(currentTab==='os') renderOS(m);
   if(currentTab==='atv') renderAtividades(m);
   if(currentTab==='wc') renderWC(m);
@@ -70,8 +68,44 @@ function plusDays(n){ const d=new Date(); d.setDate(d.getDate()+n); return d.toI
 function fmtDate(d){ return d? new Date(d).toLocaleDateString(): '—'; }
 function fmtDateTime(ts){ return new Date(ts).toLocaleString(); }
 
+// Alternância de tema claro/escuro
+function setTheme(light) {
+  if(light) {
+    document.documentElement.style.setProperty('--bg', '#f3f4f6');
+    document.documentElement.style.setProperty('--panel', '#fff');
+    document.documentElement.style.setProperty('--muted', '#6b7280');
+    document.documentElement.style.setProperty('--text', '#222');
+    document.documentElement.style.setProperty('--brand', '#0ea5e9');
+    document.documentElement.style.setProperty('--ok', '#22c55e');
+    document.documentElement.style.setProperty('--warn', '#f59e0b');
+    document.documentElement.style.setProperty('--bad', '#ef4444');
+    document.documentElement.style.setProperty('--line', '#d1d5db');
+  } else {
+    document.documentElement.style.setProperty('--bg', '#0f172a');
+    document.documentElement.style.setProperty('--panel', '#111827');
+    document.documentElement.style.setProperty('--muted', '#9ca3af');
+    document.documentElement.style.setProperty('--text', '#e5e7eb');
+    document.documentElement.style.setProperty('--brand', '#0ea5e9');
+    document.documentElement.style.setProperty('--ok', '#22c55e');
+    document.documentElement.style.setProperty('--warn', '#f59e0b');
+    document.documentElement.style.setProperty('--bad', '#ef4444');
+    document.documentElement.style.setProperty('--line', '#1f2937');
+  }
+}
+window.addEventListener('DOMContentLoaded',()=>{
+  let light=false;
+  const btn=document.getElementById('toggle-theme');
+  if(btn){
+    btn.onclick=()=>{
+      light=!light;
+      setTheme(light);
+      btn.textContent=light?'Visual Escuro':'Visual Claro';
+    };
+  }
+});
+
 // CRUD
-function addWC(name,capUph=30,shiftHours=8){ const wc={id:uid('wc_'),name,capUph:Number(capUph),shiftHours:Number(shiftHours)}; DB.workCenters.push(wc); return wc; }
+function addWC(name,capUph=1,shiftHours=8){ const wc={id:uid('wc_'),name,capUph:Number(capUph),shiftHours:Number(shiftHours)}; DB.workCenters.push(wc); return wc; }
 function addAtv(tagFamilia,descricao){ const a={id:uid('at_'),tagFamilia,descricao}; DB.atividades.push(a); return a; }
 function addRoteiro(atividadeId,steps){ const r={id:uid('rt_'),atividadeId,steps:steps.map((s,i)=>({id:uid('st_'),wcId:s.wcId,minPerUnit:Number(s.minPerUnit),seq:i+1}))}; DB.roteiros.push(r); return r; }
 function addOS(atividadeId,tagItem,osNumber,setor,responsavel,inicio,fim,prioridade,status,qty,due){
@@ -90,12 +124,14 @@ function osById(id){ return DB.os.find(o=>o.id===id); }
 // Dashboard com KPIs + gráficos
 function renderDash(m){
   const aberto = DB.os.filter(o=>o.status!=='FINALIZADO').length;
+  const emProcesso = DB.os.filter(o=>o.status==='EM PROCESSO').length;
   const finalizadas = DB.os.filter(o=>o.status==='FINALIZADO').length;
   const atrasadas = DB.os.filter(o=>o.status!=='FINALIZADO' && new Date(o.due) < new Date()).length;
   const wrap=document.createElement('div');
   wrap.innerHTML=`
-    <div class="grid cols-3">
+    <div class="grid cols-4">
       <div class="card kpi"><div class="dot" style="background:#0ea5e9"></div><div><div class="muted">OS em aberto</div><div style="font-size:28px;font-weight:900">${aberto}</div></div></div>
+      <div class="card kpi"><div class="dot" style="background:#f59e0b"></div><div><div class="muted">Em processo</div><div style="font-size:28px;font-weight:900">${emProcesso}</div></div></div>
       <div class="card kpi"><div class="dot" style="background:#22c55e"></div><div><div class="muted">Finalizadas</div><div style="font-size:28px;font-weight:900">${finalizadas}</div></div></div>
       <div class="card kpi"><div class="dot" style="background:#ef4444"></div><div><div class="muted">Atrasadas</div><div style="font-size:28px;font-weight:900">${atrasadas}</div></div></div>
     </div>
@@ -124,7 +160,14 @@ function aggregateByWC(days=7){
   return {labels, values};
 }
 function throughputByDay(days=14){
-  const map = new Map(); for(let i=days-1;i>=0;i--){ const d=new Date(); d.setDate(d.getDate()-i); const key=d.toISOString().slice(0,10); map.set(key,0); }
+  // Garante que o período termine hoje
+  const map = new Map();
+  const today = new Date(); today.setHours(0,0,0,0);
+  for(let i=days-1;i>=0;i--){
+    const d=new Date(today); d.setDate(today.getDate()-i);
+    const key=d.toISOString().slice(0,10);
+    map.set(key,0);
+  }
   DB.apontamentos.forEach(a=>{ const key=(new Date(a.ts)).toISOString().slice(0,10); if(map.has(key)) map.set(key, map.get(key)+Number(a.qtyOk||0)); });
   const labels = Array.from(map.keys()).map(d=> new Date(d).toLocaleDateString());
   const values = Array.from(map.values());
@@ -135,105 +178,95 @@ function renderLegend(el, labels, colors, values){
 }
 // Charts SVG
 function drawDonut(el, values, colors){
-  const size = 240, cx=size/2, cy=size/2, r=80, stroke=36;
-  const total = values.reduce((a,b)=>a+b,0) || 1;
-  const svg = [`<svg viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg">`];
+  const size = 260, cx=size/2, cy=size/2, r=90, stroke=40;
+  const totalRaw = values.reduce((a,b)=>a+b,0);
+  const total = totalRaw > 0 ? totalRaw : 0;
+  const svg = [`<svg viewBox=\"0 0 ${size} ${size}\" width=\"${size}\" height=\"${size}\" xmlns=\"http://www.w3.org/2000/svg\">`];
   let start = -90;
-  for(let i=0;i<values.length;i++){
-    const v=values[i]; const ang=360*(v/total); const end=start+ang; const large=ang>180?1:0;
-    const sx = cx + r*Math.cos(Math.PI*start/180), sy = cy + r*Math.sin(Math.PI*start/180);
-    const ex = cx + r*Math.cos(Math.PI*end/180),   ey = cy + r*Math.sin(Math.PI*end/180);
-    svg.push(`<path d="M ${sx} ${sy} A ${r} ${r} 0 ${large} 1 ${ex} ${ey}" stroke="${colors[i%colors.length]}" stroke-width="${stroke}" fill="none" />`);
-    start=end;
+  // Animação de entrada (crescimento das fatias)
+  const now = performance.now();
+  const duration = 700; // ms
+  let animFrame;
+  function animate() {
+    svg.length = 1; // mantém apenas o <svg ...>
+    let progress = Math.min(1, (performance.now() - now) / duration);
+    let localStart = start;
+    for(let i=0;i<values.length;i++){
+      const v=values[i];
+      const ang=360*(v/total)*progress;
+      const end=localStart+ang;
+      const large=ang>180?1:0;
+      const sx = cx + r*Math.cos(Math.PI*localStart/180), sy = cy + r*Math.sin(Math.PI*localStart/180);
+      const ex = cx + r*Math.cos(Math.PI*end/180),   ey = cy + r*Math.sin(Math.PI*end/180);
+      svg.push(`<path d=\"M ${sx} ${sy} A ${r} ${r} 0 ${large} 1 ${ex} ${ey}\" stroke=\"${colors[i%colors.length]}\" stroke-width=\"${stroke}\" fill=\"none\" filter=\"url(#shadow)\"/>`);
+      // Percentual
+      if (v > 0 && progress === 1) {
+        const midAng = localStart + ang/2;
+        const tx = cx + (r-20)*Math.cos(Math.PI*midAng/180);
+        const ty = cy + (r-20)*Math.sin(Math.PI*midAng/180);
+        const percent = Math.round((v/total)*100);
+        if(percent > 7) // só mostra se espaço suficiente
+          svg.push(`<text x=\"${tx}\" y=\"${ty}\" text-anchor=\"middle\" dominant-baseline=\"middle\" font-size=\"13\" fill=\"#fff\" opacity=\"0.85\">${percent}%</text>`);
+      }
+      localStart=end;
+    }
+    svg.push(`<defs><filter id=\"shadow\" x=\"-20%\" y=\"-20%\" width=\"140%\" height=\"140%\"><feDropShadow dx=\"0\" dy=\"2\" stdDeviation=\"2\" flood-color=\"#000\" flood-opacity=\"0.2\"/></filter></defs>`);
+    // Valor central destacado
+    svg.push(`<circle cx=\"${cx}\" cy=\"${cy}\" r=\"${r-stroke/2+2}\" fill=\"var(--panel)\"/>`);
+    svg.push(`<text x=\"${cx}\" y=\"${cy-2}\" text-anchor=\"middle\" dominant-baseline=\"middle\" font-size=\"28\" fill=\"var(--text)\" font-weight=\"900\">${total}</text>`);
+    svg.push(`<text x=\"${cx}\" y=\"${cy+18}\" text-anchor=\"middle\" font-size=\"13\" fill=\"var(--muted)\">Total</text>`);
+    svg.push(`</svg>`);
+    el.innerHTML = svg.join('');
+    if(progress < 1) animFrame = requestAnimationFrame(animate);
   }
-  svg.push(`<circle cx="${cx}" cy="${cy}" r="${r-stroke/2}" fill="#0b1220"/><text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="middle" font-size="16" fill="#cbd5e1" font-weight="700">${total}</text></svg>`);
-  el.innerHTML = svg.join('');
+  animate();
 }
+
 function drawBars(el, labels, values, color, highlight){
-  const width = Math.max(320, labels.length*70), height=280, pad=40, max=Math.max(10, ...values);
+  const width = Math.max(340, labels.length*80), height=300, pad=50, max=Math.max(10, ...values);
   const svg=[`<svg viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">`];
-  for(let g=0; g<=4; g++){ const y=pad+(height-pad-30)*g/4; svg.push(`<line x1="${pad}" y1="${y}" x2="${width-10}" y2="${y}" stroke="#1f2937"/>`); }
-  const barW=32, gap=(width-pad-20)/labels.length;
+  for(let g=0; g<=4; g++){ const y=pad+(height-pad-30)*g/4; svg.push(`<line x1="${pad}" y1="${y}" x2="${width-10}" y2="${y}" stroke="var(--line)"/>`); }
+  const barW=38, gap=(width-pad-20)/labels.length;
   values.forEach((v,i)=>{ const h=(height-pad-30)*(v/max); const x=pad+gap*i+(gap-barW)/2; const y=height-30 - h;
     const c=(v===Math.max(...values) && v>0)?highlight:color;
-    svg.push(`<rect x="${x}" y="${y}" width="${barW}" height="${Math.max(0,h)}" rx="6" ry="6" fill="${c}"/>`);
-    svg.push(`<text x="${x+barW/2}" y="${height-12}" font-size="11" fill="#9ca3af" text-anchor="middle">${labels[i].slice(0,10)}</text>`);
+    svg.push(`<rect x="${x}" y="${y}" width="${barW}" height="${Math.max(0,h)}" rx="8" ry="8" fill="${c}" filter="url(#shadow)"/>`);
+    svg.push(`<text x="${x+barW/2}" y="${height-12}" font-size="13" fill="var(--muted)" text-anchor="middle">${labels[i].slice(0,14)}</text>`);
+    svg.push(`<text x="${x+barW/2}" y="${y-8}" font-size="12" fill="var(--text)" text-anchor="middle">${v}</text>`);
   });
+  svg.push(`<defs><filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000" flood-opacity="0.15"/></filter></defs>`);
   svg.push(`</svg>`); el.innerHTML=svg.join('');
 }
+
 function drawLine(el, labels, values, stroke, fill){
-  const width=Math.max(400, labels.length*40), height=280, pad=40, max=Math.max(10, ...values);
+  const width=Math.max(420, labels.length*50), height=300, pad=50, max=Math.max(10, ...values);
   const svg=[`<svg viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">`];
-  for(let g=0; g<=4; g++){ const y=pad+(height-pad-30)*g/4; svg.push(`<line x1="${pad}" y1="${y}" x2="${width-10}" y2="${y}" stroke="#1f2937"/>`); }
-  const pts = values.map((v,i)=>{ const x=pad + i*(width-pad-20)/Math.max(1,labels.length-1); const y=height-30 - (height-pad-30)*(v/max); return [x,y]; });
+  for(let g=0; g<=4; g++){ const y=pad+(height-pad-30)*g/4; svg.push(`<line x1="${pad}" y1="${y}" x2="${width-10}" y2="${y}" stroke="var(--line)"/>`); }
+    const maxLine = Math.max(1, ...values);
+    const pts = values.map((v,i)=>{
+      const x=pad + i*(width-pad-20)/Math.max(1,labels.length-1);
+      const y=height-30 - (height-pad-30)*(v/maxLine);
+      return [x,y];
+    });
   if(pts.length){
     const d=pts.map((p,i)=> (i?'L':'M')+p[0]+' '+p[1]).join(' ');
     const d2 = d+` L ${pad+(width-pad-20)} ${height-30} L ${pad} ${height-30} Z`;
     svg.push(`<path d="${d2}" fill="${fill}30"/>`);
-    svg.push(`<path d="${d}" stroke="${stroke}" stroke-width="2.5" fill="none"/>`);
-    pts.forEach(p=> svg.push(`<circle cx="${p[0]}" cy="${p[1]}" r="3" fill="${stroke}"/>`));
+    svg.push(`<path d="${d}" stroke="${stroke}" stroke-width="3.5" fill="none" filter="url(#shadow)"/>`);
+      pts.forEach(p=> svg.push(`<circle cx="${p[0]}" cy="${p[1]}" r="4" fill="${stroke}"/>`));
   }
-  labels.forEach((lab,i)=>{ if(i%Math.ceil(labels.length/7)===0 || i===labels.length-1){ const x=pad + i*(width-pad-20)/Math.max(1,labels.length-1); svg.push(`<text x="${x}" y="${height-8}" font-size="11" fill="#9ca3af" text-anchor="middle">${lab}</text>`); } });
+  // Exibe apenas datas espaçadas, a primeira e a última
+  const step = Math.ceil(labels.length / 6);
+  labels.forEach((lab,i)=>{
+    if(i===0 || i===labels.length-1 || i%step===0){
+      const x=pad + i*(width-pad-20)/Math.max(1,labels.length-1);
+      svg.push(`<text x="${x}" y="${height-8}" font-size="13" fill="var(--muted)" text-anchor="middle">${lab}</text>`);
+    }
+  });
+  svg.push(`<defs><filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000" flood-opacity="0.15"/></filter></defs>`);
   svg.push(`</svg>`); el.innerHTML=svg.join('');
 }
 
-// RÁPIDO — apontamento simplificado
-function renderRapido(m){
-  const wrap = document.createElement('div');
-  wrap.innerHTML = `
-    <div class="card">
-      <h2>Adicionar Apontamento (Rápido)</h2>
-      <div class="pill">Operacional — mínimo de campos</div>
-      <div class="row">
-        <div><label>OS</label><select id="qa-os"></select></div>
-        <div><label>Frente/Centro</label><select id="qa-wc"></select></div>
-      </div>
-      <div class="row">
-        <div><label>Quantidade OK</label><input id="qa-ok" type="number" min="0" value="0"></div>
-        <div><label>Refugo</label><input id="qa-ref" type="number" min="0" value="0"></div>
-      </div>
-      <div class="row">
-        <div><label>Responsável</label><input id="qa-resp" placeholder="Ex.: GAVIÃO"></div>
-        <div><label>Observação</label><input id="qa-obs" placeholder="Ex.: ajuste / setup"></div>
-      </div>
-      <div style="display:flex;gap:8px;margin-top:10px">
-        <button class="btn" id="qa-save">Salvar</button>
-        <button class="btn ghost" id="qa-new">Salvar + Novo</button>
-      </div>
-    </div>
-    <div class="card" style="margin-top:12px">
-      <h2>Últimos apontamentos</h2>
-      <table><thead><tr><th>Data</th><th>OS</th><th>Frente</th><th>OK</th><th>Ref</th><th>Resp.</th><th>Obs</th></tr></thead>
-      <tbody id="qa-list"></tbody></table>
-    </div>`;
-  m.appendChild(wrap);
-
-  const selOS=$('#qa-os',wrap); selOS.innerHTML = DB.os.filter(o=>o.status!=='FINALIZADO').map(o=>{
-    const a=atvById(o.atividadeId); return `<option value="${o.id}">${a?.descricao||'Atividade'} • OS ${o.osNumber||o.id.slice(-6).toUpperCase()}</option>`;
-  }).join('');
-  const selWC=$('#qa-wc',wrap);
-  function refreshWC(){ const o=osById(selOS.value); const r=rotByAtv(o?.atividadeId); selWC.innerHTML=(r?.steps||[]).map(s=> `<option value="${s.wcId}">${wcById(s.wcId)?.name||''}</option>`).join(''); }
-  selOS.onchange=refreshWC; refreshWC();
-
-  function saveAct(reset=false){
-    const osId=selOS.value, wcId=selWC.value;
-    const ok=Number($('#qa-ok',wrap).value||0), ref=Number($('#qa-ref',wrap).value||0);
-    const resp=$('#qa-resp',wrap).value.trim(), obs=$('#qa-obs',wrap).value.trim();
-    if(!osId||!wcId) return alert('Selecione OS e Frente');
-    addApontamento(osId,wcId,ok,ref,resp,obs); save();
-    if(reset){ $('#qa-ok',wrap).value=0; $('#qa-ref',wrap).value=0; $('#qa-resp',wrap).value=''; $('#qa-obs',wrap).value=''; }
-    renderRapido(m);
-  }
-  $('#qa-save',wrap).onclick=()=> saveAct(false);
-  $('#qa-new',wrap).onclick=()=> saveAct(true);
-
-  const list=$('#qa-list',wrap);
-  const latest=[...DB.apontamentos].sort((a,b)=> new Date(b.ts)-new Date(a.ts)).slice(0,12);
-  list.innerHTML = latest.map(a=>{
-    const o=osById(a.osId); const atv=atvById(o?.atividadeId);
-    return `<tr><td>${fmtDateTime(a.ts)}</td><td>${atv?.descricao||''} • ${o?.osNumber||o?.id.slice(-6).toUpperCase()}</td><td>${wcById(a.wcId)?.name||''}</td><td>${a.qtyOk}</td><td>${a.qtyRef}</td><td>${a.resp||''}</td><td>${a.obs||''}</td></tr>`;
-  }).join('');
-}
+// ...existing code...
 
 // (demais telas) — iguais à v1p, preservadas
 function renderOS(m){
@@ -263,7 +296,7 @@ function renderOS(m){
         <div><label>Prazo (Due)</label><input id="os-due" type="date" value="${plusDays(7)}"/></div>
       </div>
       <div class="row">
-        <div><label>Quantidade</label><input id="os-qty" type="number" value="10"/></div>
+  <div><label>Quantidade</label><input id="os-qty" type="number" value="1" min="1"/></div>
         <div><label>Status</label><select id="os-status"><option>PROGRAMADO</option><option>EM PROCESSO</option><option>PAUSADO</option><option>FINALIZADO</option></select></div>
       </div>
       <label>Observações</label><input id="os-obs" placeholder="Anotações..."/>
@@ -287,7 +320,7 @@ function renderOS(m){
   </div>`;
   m.appendChild(wrap);
 
-  const sel=$('#os-atv',wrap); sel.innerHTML=DB.atividades.map(a=>`<option value="${a.id}">${a.descricao} (TAG ${a.tagFamilia||''})</option>`).join('');
+  const sel=$('#os-atv',wrap); sel.innerHTML=DB.atividades.map(a=>`<option value="${a.id}">${a.descricao}${a.tagFamilia ? ' ('+a.tagFamilia+')' : ''}</option>`).join('');
   $('#os-save',wrap).onclick=()=>{
     const atv = $('#os-atv',wrap).value;
     const tagfam = $('#os-tagfam',wrap).value.trim();
@@ -362,10 +395,24 @@ function initDnD(){
 }
 function onAction(e){
   const id=e.target.dataset.id, act=e.target.dataset.act;
-  const o=DB.os.find(x=>x.id===id); if(!o) return;
+  const o=DB.os.find(x=>x.id===id);
+  console.log('onAction:', {id, act, o});
+  if(!o) {
+    console.warn('OS não encontrada para id:', id);
+    return;
+  }
   if(act==='start'){ o.status='EM PROCESSO'; o.history.push({ts:Date.now(),type:'start'}); }
   if(act==='pause'){ o.status='PAUSADO'; o.history.push({ts:Date.now(),type:'pause'}); }
-  if(act==='advance'){ const r=rotByAtv(o.atividadeId); if(r){ o.stepIndex=Math.min(o.stepIndex+1,r.steps.length-1);} o.history.push({ts:Date.now(),type:'advance',step:o.stepIndex}); }
+  if(act==='advance'){
+    const r=rotByAtv(o.atividadeId);
+    console.log('Avançar etapa:', {atividadeId: o.atividadeId, roteiro: r, stepIndex: o.stepIndex});
+    if(r){
+      o.stepIndex=Math.min(o.stepIndex+1,r.steps.length-1);
+    } else {
+      console.warn('Roteiro não encontrado para atividade:', o.atividadeId);
+    }
+    o.history.push({ts:Date.now(),type:'advance',step:o.stepIndex});
+  }
   if(act==='finish'){ o.status='FINALIZADO'; o.history.push({ts:Date.now(),type:'finish'}); }
   save(); render();
 }
@@ -377,13 +424,13 @@ function renderAtividades(m){
   <div class="grid cols-2">
     <div class="card">
       <h2>Nova Atividade (Demanda)</h2>
-      <label>TAG (família)</label><input id="a-tag" placeholder="Ex.: CL09"/>
+      <label>Código</label><input id="a-tag" placeholder="Ex.: CL09"/>
       <label>Descrição</label><input id="a-desc" placeholder="Ex.: CILINDRO ELEVAÇÃO LÂMINA"/>
       <button class="btn" id="a-save">Salvar</button>
     </div>
     <div class="card">
       <h2>Catálogo de Atividades</h2>
-      <table><thead><tr><th>TAG</th><th>Descrição</th></tr></thead><tbody id="a-list"></tbody></table>
+      <table><thead><tr><th>Código</th><th>Descrição</th></tr></thead><tbody id="a-list"></tbody></table>
     </div>
   </div>`;
   m.appendChild(wrap);
@@ -402,7 +449,7 @@ function renderWC(m){
     <div class="card">
       <h2>Nova Frente/Centro</h2>
       <label>Nome</label><input id="wc-name" placeholder="Ex.: FRENTE 1"/>
-      <div class="row"><div><label>Capacidade (un/h)</label><input id="wc-cap" type="number" value="30"/></div><div><label>Horas/turno</label><input id="wc-shift" type="number" value="8"/></div></div>
+  <div class="row"><div><label>Capacidade (un/h)</label><input id="wc-cap" type="number" value="1" min="1"/></div><div><label>Horas/turno</label><input id="wc-shift" type="number" value="8" min="1"/></div></div>
       <button class="btn" id="wc-save">Salvar</button>
     </div>
     <div class="card">
