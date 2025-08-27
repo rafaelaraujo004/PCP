@@ -1,205 +1,29 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>FORM_384 • Transferência de Equipamentos</title>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>PCP Go — Controle Demandas (v1p2)</title>
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#0b5aa3">
-  <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="print.css" media="print">
-  <script defer src="app.js"></script>
+  <link rel="stylesheet" href="styles.css"/>
+  <meta name="theme-color" content="#0ea5e9"/>
 </head>
 <body>
-<header class="app-header" style="color:#ffffff">
-  <div class="brand">
-
-    <div>
-      <h1>TRANSFERÊNCIA DE EQUIPAMENTOS</h1>
-      <p class="muted">FORM_384 • Revisão 09</p>
-    </div>
-  </div>
-  <div class="pwa-actions">
-    <button id="exportPdfBtn" class="btn btn-outline">Exportar PDF</button>
-    <button id="limparBtn" class="btn btn-danger">Limpar</button>
-  </div>
-</header>
-
-<main id="formRoot">
-  <!-- Metadados principais -->
-  <section class="card">
-    <h2>Identificação do Equipamento</h2>
-    <div class="grid g4">
-      <label>Data <input type="date" data-model="meta.data"></label>
-      <label>Fabricante <input type="text" data-model="meta.fabricante"></label>
-      <label>Modelo <input type="text" data-model="meta.modelo"></label>
-      <label>Ano Fabricação <input type="number" data-model="meta.ano"></label>
-      <label>Série <input type="text" data-model="meta.serie"></label>
-      <label>KM <input type="text" data-model="meta.km"></label>
-      <label>Horímetro <input type="text" data-model="meta.horimetro"></label>
-      <label>TAG <input type="text" data-model="meta.tag"></label>
-      <label>Origem <input type="text" data-model="meta.origem"></label>
-      <label>Destino <input type="text" data-model="meta.destino"></label>
-      <label>Técnico Envio <input type="text" data-model="meta.tecnico_envio"></label>
-      <label>Técnico Recebimento <input type="text" data-model="meta.tecnico_receb"></label>
-    </div>
-    <p class="hint">Conferir a árvore de componentes no SAP × físico; divergências &rarr; <strong>Backlog</strong>.</p>
-  </section>
-
-  <!-- Helper para blocos OK/NOK/NA -->
-  <template id="tplCheckTable">
-    <table class="check-table">
-      <thead>
-        <tr>
-          <th class="w40">Item</th>
-          <th>Descrição</th>
-          <th class="w10">Envio</th>
-          <th class="w10">Recebimento.</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </template>
-
-  <!-- Seções principais (sumário reduzido baseado no PDF) -->
-  <section class="card" data-section="cabine">
-    <h2>Cabine</h2>
-    <div class="table-wrap" data-table="cabine"></div>
-    <label>Obs./Justificativas (NOK)
-      <textarea data-model="cabine.obs" rows="3"></textarea>
-    </label>
-  </section>
-
-  <section class="card" data-section="estruturaExterna">
-    <h2>Estrutura Externa</h2>
-    <div class="table-wrap" data-table="estruturaExterna"></div>
-    <label>Obs./Justificativas (NOK)
-      <textarea data-model="estruturaExterna.obs" rows="3"></textarea>
-    </label>
-  </section>
-
-  <section class="card" data-section="estadoImplemento">
-    <h2>Estado do Implemento</h2>
-    <div class="table-wrap" data-table="estadoImplemento"></div>
-    <label>Obs./Justificativas (NOK)
-      <textarea data-model="estadoImplemento.obs" rows="3"></textarea>
-    </label>
-  </section>
-
-  <section class="card" data-section="pneus">
-    <h2>Pneus</h2>
-    <div class="table-wrap" data-table="pneus"></div>
-    <label>Obs./Justificativas (NOK)
-      <textarea data-model="pneus.obs" rows="3"></textarea>
-    </label>
-  </section>
-
-  <section class="card" data-section="chassi">
-    <h2>Estado do Chassi</h2>
-    <div class="table-wrap" data-table="chassi"></div>
-    <label>Obs./Justificativas (NOK)
-      <textarea data-model="chassi.obs" rows="3"></textarea>
-    </label>
-  </section>
-
-  <section class="card" data-section="sistemas">
-    <h2>Sistemas</h2>
-    <div class="grid g2">
+  <header>
+    <div class="brand">
+      <div class="logo">P</div>
       <div>
-        <h3>Sistema de Direção</h3>
-        <div class="table-wrap" data-table="sistDirecao"></div>
-        <label>Obs. <textarea data-model="sistDirecao.obs" rows="2"></textarea></label>
-      </div>
-      <div>
-        <h3>Sistema de Freio</h3>
-        <div class="table-wrap" data-table="sistFreio"></div>
-        <label>Obs. <textarea data-model="sistFreio.obs" rows="2"></textarea></label>
-      </div>
-      <div>
-        <h3>Sistema de Suspensão</h3>
-        <div class="table-wrap" data-table="sistSusp"></div>
-        <label>Obs. <textarea data-model="sistSusp.obs" rows="2"></textarea></label>
-      </div>
-      <div>
-        <h3>Trem de Força (Mec./Elétr.)</h3>
-        <div class="table-wrap" data-table="tremForca"></div>
-        <label>Obs. <textarea data-model="tremForca.obs" rows="2"></textarea></label>
-      </div>
-      <div>
-        <h3>Sistema de Motor</h3>
-        <div class="table-wrap" data-table="motor"></div>
-        <label>Obs. <textarea data-model="motor.obs" rows="2"></textarea></label>
-      </div>
-      <div>
-        <h3>Sistema de Refrigeração</h3>
-        <div class="table-wrap" data-table="refrig"></div>
-        <label>Obs. <textarea data-model="refrig.obs" rows="2"></textarea></label>
-      </div>
-      <div>
-        <h3>Vazamentos</h3>
-        <div class="table-wrap" data-table="vazamentos"></div>
-      </div>
-      <div>
-        <h3>Sistema Elétrico</h3>
-        <div class="table-wrap" data-table="eletrico"></div>
+        <div style="font-weight:900">PCP Go — Controle Demandas</div>
+        <div class="muted">Formato v1 • Nomenclaturas da planilha</div>
       </div>
     </div>
-  </section>
-
-  <section class="card" data-section="niveis">
-    <h2>Níveis de Fluidos</h2>
-    <div class="levels-grid" id="levelsGrid"></div>
-  </section>
-
-  <section class="card" data-section="manutencao">
-    <h2>Manutenção</h2>
-    <div class="table-wrap" data-table="manutencao"></div>
-  </section>
-
-  <section class="card" data-section="formsDocs">
-    <h2>Preenchimento FORMs e Docs</h2>
-    <div class="table-wrap" data-table="formsDocs"></div>
-  </section>
-
-  <section class="card" data-section="backlog">
-    <h2>Backlog</h2>
-    <textarea data-model="backlog.descricao" rows="4" placeholder="Descreva pendências, manutenções necessárias, divergências SAP × físico..."></textarea>
-  </section>
-
-  <section class="card" data-section="fotos">
-    <h2>Fotos</h2>
-    <div id="fotosWrap" class="fotos-wrap">
-      <input type="file" accept="image/*" id="fotoInput" multiple>
-      <div id="fotosGrid" class="fotos-grid" aria-live="polite"></div>
-    </div>
-  </section>
-
-  <section class="card" data-section="assinaturas">
-    <h2>Assinaturas</h2>
-    <div class="grid g2">
-      <div class="sign">
-        <label>Técnico Envio</label>
-        <canvas id="signEnvio" width="480" height="160"></canvas>
-        <div class="sign-actions">
-          <button class="btn btn-sm" data-clear="#signEnvio">Limpar</button>
-        </div>
-      </div>
-      <div class="sign">
-        <label>Técnico Recebimento</label>
-        <canvas id="signReceb" width="480" height="160"></canvas>
-        <div class="sign-actions">
-          <button class="btn btn-sm" data-clear="#signReceb">Limpar</button>
-        </div>
-      </div>
-    </div>
-  </section>
-</main>
-
-<footer class="app-footer">
-  <small>Gerado como PWA. Layout e campos espelhados do FORM_384.</small>
-</footer>
-
-<div id="toast" class="toast" hidden></div>
-
+    <nav id="tabs">
+      <!-- created by JS -->
+    </nav>
+  </header>
+  <main id="app"></main>
+  <footer> v4</footer>
+  <script>if('serviceWorker' in navigator){ navigator.serviceWorker.register('./service-worker.js'); }</script>
+  <script src="app.js"></script>
 </body>
 </html>
