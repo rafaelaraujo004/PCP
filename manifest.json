@@ -1,18 +1,18 @@
 {
-  "name": "PCP Go — Controle Pintura (v1p2)",
-  "short_name": "PCP Go",
+  "name": "FORM_384 • Transferência de Equipamentos",
+  "short_name": "FORM_384",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#0f172a",
-  "theme_color": "#0ea5e9",
+  "background_color": "#0b1220",
+  "theme_color": "#0b5aa3",
   "icons": [
     {
-      "src": "icons/icon-192.png",
+      "src": "assets/icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "icons/icon-512.png",
+      "src": "assets/icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }

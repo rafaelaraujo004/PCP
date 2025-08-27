@@ -1,0 +1,20 @@
+/* Versão para impressão/PDF */
+@page { size: A4; margin: 10mm; }
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { background: white; color: #000; }
+.app-header, .pwa-actions, #toast { display: none !important; }
+.card { page-break-inside: avoid; border: 1px solid #222; }
+.check-table th { background: #e5e7eb; }
+.logo { filter:none; }
+
+/* Tipografia e densidade mais próximas do formulário */
+body { font-family: Arial, Helvetica, sans-serif; font-size: 11px; line-height:1.25; }
+h1 { font-size: 18px; }
+h2 { font-size: 14px; }
+h3 { font-size: 12px; }
+.check-table th, .check-table td { padding: 4px 6px; }
+.card { margin-bottom: 8px; }
+.app-footer { display:none !important; }
+/* Bordas mais escuras para lembrar planilha impressa */
+.check-table th { background: #f3f4f6 !important; }
+.card { border-color:#111 !important; }
