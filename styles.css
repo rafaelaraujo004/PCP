@@ -1,3 +1,17 @@
+/* Botão de exclusão nas tabelas */
+.btn-del {
+  background: #e11d48;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 2px 10px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background 0.2s;
+}
+.btn-del:hover {
+  background: #be123c;
+}
 /* Tabela OS aprimorada */
 .os-table-container {
   width: 100%;

@@ -24,7 +24,8 @@ const TABS=[
   {id:'atv',name:'Atividades'},
   {id:'wc',name:'Frentes/Centros'},
   // {id:'rot',name:'Roteiros'},
-  {id:'sched',name:'Agenda'}
+  {id:'sched',name:'Agenda'},
+  {id:'analises',name:'Análises'}
 ];
 
 function renderTabs(){
@@ -58,7 +59,65 @@ function render(){
   if(currentTab==='wc') renderWC(m);
   if(currentTab==='rot') renderRoteiros(m);
   if(currentTab==='sched') renderSchedule(m);
+  if(currentTab==='analises') renderAnalises(m);
   initDnD();
+}
+
+// Nova aba de análises com gráficos das OS
+function renderAnalises(m) {
+  const wrap = document.createElement('div');
+  wrap.innerHTML = `
+    <h2>Análises das OS</h2>
+    <div style="max-width:700px;margin:auto">
+      <canvas id="osStatusChart" height="120"></canvas>
+    </div>
+    <div style="max-width:700px;margin:auto;margin-top:32px">
+      <canvas id="osQtdChart" height="120"></canvas>
+    </div>
+  `;
+  m.appendChild(wrap);
+  setTimeout(drawAnalisesCharts, 100); // Aguarda DOM
+}
+
+function drawAnalisesCharts() {
+  // Gráfico de status das OS
+  const ctx1 = document.getElementById('osStatusChart');
+  if(ctx1) {
+    const statusCount = {};
+    DB.os.forEach(o => { statusCount[o.status] = (statusCount[o.status]||0)+1; });
+    new Chart(ctx1, {
+      type: 'pie',
+      data: {
+        labels: Object.keys(statusCount),
+        datasets: [{
+          data: Object.values(statusCount),
+          backgroundColor: ['#0ea5e9','#f59e0b','#22c55e','#ef4444','#a78bfa','#f472b6']
+        }]
+      },
+      options: { plugins: { legend: { position: 'bottom' } } }
+    });
+  }
+  // Gráfico de quantidade por OS
+  const ctx2 = document.getElementById('osQtdChart');
+  if(ctx2) {
+    const labels = DB.os.map(o => o.osNumber||o.id);
+    const data = DB.os.map(o => o.qty||0);
+    new Chart(ctx2, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Quantidade por OS',
+          data,
+          backgroundColor: '#0ea5e9'
+        }]
+      },
+      options: {
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true } }
+      }
+    });
+  }
 }
 
 // helpers
@@ -430,7 +489,7 @@ function renderAtividades(m){
     </div>
     <div class="card">
       <h2>Catálogo de Atividades</h2>
-      <table><thead><tr><th>Código</th><th>Descrição</th></tr></thead><tbody id="a-list"></tbody></table>
+      <table><thead><tr><th>Código</th><th>Descrição</th><th>Ação</th></tr></thead><tbody id="a-list"></tbody></table>
     </div>
   </div>`;
   m.appendChild(wrap);
@@ -438,7 +497,21 @@ function renderAtividades(m){
     const tag=$('#a-tag',wrap).value.trim(), desc=$('#a-desc',wrap).value.trim();
     if(!desc) return alert('Informe a descrição'); addAtv(tag,desc); save(); render();
   };
-  $('#a-list',wrap).innerHTML=DB.atividades.map(a=>`<tr><td>${a.tagFamilia||''}</td><td>${a.descricao}</td></tr>`).join('');
+  function excluirAtividade(id) {
+    if(!confirm('Excluir esta atividade?')) return;
+    DB.atividades = DB.atividades.filter(a=>a.id!==id);
+    save();
+    render();
+  }
+  function renderListaAtividades() {
+    $('#a-list',wrap).innerHTML=DB.atividades.map(a=>
+      `<tr><td>${a.tagFamilia||''}</td><td>${a.descricao}</td><td><button class="btn btn-del" data-id="${a.id}">Excluir</button></td></tr>`
+    ).join('');
+    $$('#a-list .btn-del',wrap).forEach(btn=>{
+      btn.onclick=()=>excluirAtividade(btn.getAttribute('data-id'));
+    });
+  }
+  renderListaAtividades();
 }
 
 // Frentes/Centros
