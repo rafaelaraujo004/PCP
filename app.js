@@ -5,17 +5,18 @@ const load=()=>({dados:JSON.parse(localStorage.getItem(LS_KEY)||'[]'),meta:JSON.
 const save=(d,m)=>{localStorage.setItem(LS_KEY,JSON.stringify(d));localStorage.setItem(LS_META,JSON.stringify(m));};
 const fmtData=v=>{if(!v) return '';const d=new Date(v); if(isNaN(d)) return v; return d.toLocaleDateString('pt-BR');};
 const fmtDataISO=v=>{if(!v) return '';const d=new Date(v); if(isNaN(d)) return v; return d.toISOString().slice(0,10);};
+
 let state=load();
 if(!state.meta.frentes){state.meta.frentes=["EVA","EUDO CONCEIÇÃO","VICENTE DE PAULA","FRENTE 4"];}
 if(!state.meta.responsaveis){state.meta.responsaveis=["DOMINGOS","EUDO CONCEIÇÃO","VICENTE DE PAULA"];}
 if(state.dados.length===0){
   state.dados=[
-    {id:uid(),descricao:"COMANDO FINAL",tag1:"CF08",tag2:"CF08056",paletes:2,observacoes:"DEMANDA ENGENHARIA",os:"4562410",setor:"COMANDO FINAL",status:"FINALIZADO",responsavel:"DOMINGOS",frente:"EVA",fim:"2025-04-03"},
-    {id:uid(),descricao:"ROLAMENTO PRINCIPAL",tag1:"RP60",tag2:"RP60011",paletes:1,observacoes:"-",os:"",setor:"EQUIPAMENTOS",status:"FINALIZADO",responsavel:"DOMINGOS",frente:"EVA",fim:"2025-04-10"},
-    {id:uid(),descricao:"COMANDO FINAL",tag1:"CF77",tag2:"CF77099",paletes:3,observacoes:"-",os:"4676911",setor:"EQUIPAMENTOS",status:"FINALIZADO",responsavel:"DOMINGOS",frente:"EVA",fim:"2025-04-10"},
-    {id:uid(),descricao:"TRANSMISSÃO 777F",tag1:"RD19",tag2:"RD1907",paletes:2,observacoes:"-",os:"4541158",setor:"EQUIPAMENTOS",status:"FINALIZADO",responsavel:"DOMINGOS",frente:"EUDO CONCEIÇÃO",fim:"2025-04-10"},
-    {id:uid(),descricao:"CILINDRO DE ELEVAÇÃO D11",tag1:"CL13",tag2:"CL13009",paletes:1,observacoes:"-",os:"",setor:"EQUIPAMENTOS",status:"EM PROCESSO",responsavel:"EUDO CONCEIÇÃO",frente:"EVA",fim:"2025-04-11"},
-    {id:uid(),descricao:"CONCHA EX-2500",tag1:"CN18",tag2:"CN18008",paletes:1,observacoes:"-",os:"",setor:"COMPONENTES",status:"FINALIZADO",responsavel:"EUDO CONCEIÇÃO",frente:"VICENTE DE PAULA",fim:"2025-04-16"}
+    {id:uid(),descricao:"COMANDO FINAL",tag1:"CF08",tag2:"LAVAGEM",paletes:2,observacoes:"DEMANDA ENGENHARIA",os:"4562410",setor:"COMANDO FINAL",status:"FINALIZADO",responsavel:"DOMINGOS",frente:"EVA",fim:"2025-04-03"},
+    {id:uid(),descricao:"ROLAMENTO PRINCIPAL",tag1:"RP60",tag2:"PINTURA",paletes:1,observacoes:"-",os:"",setor:"EQUIPAMENTOS",status:"FINALIZADO",responsavel:"DOMINGOS",frente:"EVA",fim:"2025-04-10"},
+    {id:uid(),descricao:"COMANDO FINAL",tag1:"CF77",tag2:"LAVAGEM",paletes:3,observacoes:"-",os:"4676911",setor:"EQUIPAMENTOS",status:"FINALIZADO",responsavel:"DOMINGOS",frente:"EVA",fim:"2025-04-10"},
+    {id:uid(),descricao:"TRANSMISSÃO 777F",tag1:"RD19",tag2:"PINTURA",paletes:2,observacoes:"-",os:"4541158",setor:"EQUIPAMENTOS",status:"FINALIZADO",responsavel:"DOMINGOS",frente:"EUDO CONCEIÇÃO",fim:"2025-04-10"},
+    {id:uid(),descricao:"CILINDRO DE ELEVAÇÃO D11",tag1:"CL13",tag2:"LAVAGEM",paletes:1,observacoes:"-",os:"",setor:"EQUIPAMENTOS",status:"EM PROCESSO",responsavel:"EUDO CONCEIÇÃO",frente:"EVA",fim:"2025-04-11"},
+    {id:uid(),descricao:"CONCHA EX-2500",tag1:"CN18",tag2:"PINTURA",paletes:1,observacoes:"-",os:"",setor:"COMPONENTES",status:"FINALIZADO",responsavel:"EUDO CONCEIÇÃO",frente:"VICENTE DE PAULA",fim:"2025-04-16"}
   ];
   state.meta.consumo=4656855; save(state.dados,state.meta);
 }
@@ -78,6 +79,8 @@ function renderTable(){const tb=$('#tabela tbody'); tb.innerHTML=''; const q=($(
 function renderDashboard(){const total=state.dados.length; const programado=state.dados.filter(r=>r.status==='PROGRAMADO').length; const processo=state.dados.filter(r=>r.status==='EM PROCESSO').length; const finalizado=state.dados.filter(r=>r.status==='FINALIZADO').length; $('#kpiTotal').textContent=total; $('#kpiProgramado').textContent=programado; $('#kpiEmProcesso').textContent=processo; $('#kpiFinalizado').textContent=finalizado; $('#kpiConsumo').textContent=state.meta.consumo||0; window._charts ||= {}; for(const k in window._charts){window._charts[k].destroy();}
   
   // Gráfico de barras por status
+  const statusData = [programado,processo,finalizado];
+  const maxStatusValue = Math.max(...statusData);
   const c1=$('#chartStatus').getContext('2d'); 
   window._charts.status=new Chart(c1,{
     type:'bar',
@@ -85,7 +88,7 @@ function renderDashboard(){const total=state.dados.length; const programado=stat
       labels:['Programado','Em processo','Finalizado'],
       datasets:[{
         label:'Qtd',
-        data:[programado,processo,finalizado],
+        data:statusData,
         backgroundColor:['#e2a937','#575756','#19502f']
       }]
     },
@@ -104,12 +107,30 @@ function renderDashboard(){const total=state.dados.length; const programado=stat
       scales:{
         y:{
           beginAtZero:true,
+          max: maxStatusValue + 10,
           ticks:{
             stepSize:1
           }
         }
       }
-    }
+    },
+    plugins:[{
+      afterDatasetsDraw: function(chart) {
+        const ctx = chart.ctx;
+        chart.data.datasets.forEach((dataset, i) => {
+          const meta = chart.getDatasetMeta(i);
+          meta.data.forEach((bar, index) => {
+            const value = dataset.data[index];
+            if(value > 0) {
+              ctx.fillStyle = '#333';
+              ctx.font = 'bold 12px Arial';
+              ctx.textAlign = 'center';
+              ctx.fillText(value, bar.x, bar.y - 5);
+            }
+          });
+        });
+      }
+    }]
   });
   
   // Gráfico de pizza por responsável
@@ -163,25 +184,48 @@ function renderDashboard(){const total=state.dados.length; const programado=stat
           }
         }
       }
-    }
+    },
+    plugins:[{
+      afterDatasetsDraw: function(chart) {
+        const ctx = chart.ctx;
+        ctx.font = 'bold 11px Arial';
+        ctx.fillStyle = '#fff';
+        ctx.textAlign = 'center';
+        const meta = chart.getDatasetMeta(0);
+        meta.data.forEach((arc, index) => {
+          const value = chart.data.datasets[0].data[index];
+          if(value > 0) {
+            const angle = (arc.startAngle + arc.endAngle) / 2;
+            const radius = (arc.innerRadius + arc.outerRadius) / 2;
+            const x = arc.x + Math.cos(angle) * radius * 0.8;
+            const y = arc.y + Math.sin(angle) * radius * 0.8;
+            ctx.fillText(value, x, y);
+          }
+        });
+      }
+    }]
   });
   
-  // Gráfico de linha
-  const ult={}; const hoje=new Date(); 
-  for(let i=59;i>=0;i--){const d=new Date(hoje); d.setDate(d.getDate()-i); const k=fmtDataISO(d); ult[k]=0;} 
-  state.dados.forEach(r=>{if(r.status==='FINALIZADO'&&r.fim){const k=fmtDataISO(r.fim); if(k in ult) ult[k]++;}});
+  // Gráfico de barras por tipo de serviço
+  const porTipo = {};
+  state.dados.forEach(r => {
+    const tipo = r.tag2 || 'Não Definido';
+    const paletes = parseInt(r.paletes) || 0;
+    porTipo[tipo] = (porTipo[tipo] || 0) + paletes;
+  });
+  
+  const tipoData = Object.values(porTipo);
+  const maxTipoValue = Math.max(...tipoData, 0);
+  
   const c3=$('#chartLinha').getContext('2d'); 
   window._charts.linha=new Chart(c3,{
-    type:'line',
+    type:'bar',
     data:{
-      labels:Object.keys(ult),
+      labels:Object.keys(porTipo),
       datasets:[{
-        label:'Finalizações',
-        data:Object.values(ult),
-        tension:.25,
-        borderColor:'#19502f',
-        backgroundColor:'rgba(25,80,47,0.1)',
-        fill:true
+        label:'Paletes',
+        data:tipoData,
+        backgroundColor:['#19502f','#e2a937','#466c53','#575756']
       }]
     },
     options:{
@@ -191,21 +235,38 @@ function renderDashboard(){const total=state.dados.length; const programado=stat
         tooltip:{
           callbacks:{
             label:function(context){
-              return 'Finalizações: ' + context.parsed.y;
+              return context.label + ': ' + context.parsed.y + ' paletes';
             }
           }
         }
       },
       scales:{
-        x:{display:false},
         y:{
           beginAtZero:true,
+          max: maxTipoValue + 10,
           ticks:{
             stepSize:1
           }
         }
       }
-    }
+    },
+    plugins:[{
+      afterDatasetsDraw: function(chart) {
+        const ctx = chart.ctx;
+        chart.data.datasets.forEach((dataset, i) => {
+          const meta = chart.getDatasetMeta(i);
+          meta.data.forEach((bar, index) => {
+            const value = dataset.data[index];
+            if(value > 0) {
+              ctx.fillStyle = '#333';
+              ctx.font = 'bold 12px Arial';
+              ctx.textAlign = 'center';
+              ctx.fillText(value, bar.x, bar.y - 5);
+            }
+          });
+        });
+      }
+    }]
   });
 }
 function exportarExcel(){
@@ -226,7 +287,7 @@ function exportarExcel(){
   const dadosFormatados = state.dados.map(registro => ({
     'Descrição': registro.descricao || '',
     'TAG 1': registro.tag1 || '',
-    'TAG 2': registro.tag2 || '',
+    'Tipo de Serviço': registro.tag2 || '',
     'Paletes': registro.paletes ?? '',
     'Observações': registro.observacoes || '',
     'OS': registro.os || '',
@@ -244,7 +305,7 @@ function exportarExcel(){
   const colWidths = [
     { wch: 25 }, // Descrição
     { wch: 12 }, // TAG 1
-    { wch: 12 }, // TAG 2
+    { wch: 12 }, // Tipo de Serviço
     { wch: 10 }, // Paletes
     { wch: 20 }, // Observações
     { wch: 12 }, // OS

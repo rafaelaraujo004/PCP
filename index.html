@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Controle Lavador</title>
+  <title>Controle de Atividades Lavador e Pintura</title>
   <link rel="stylesheet" href="styles.css" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='16' fill='%231d7d42'/%3E%3Ctext x='50' y='58' font-family='Inter,Arial' font-weight='700' font-size='46' text-anchor='middle' fill='white'%3EU%26M%3C/text%3E%3C/svg%3E">
   <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -15,7 +15,7 @@
     <div class="brand">
       <div class="logo">U&amp;M</div>
       <div class="titles">
-        <h1>Controle Lavador</h1>
+        <h1>Controle de Atividades Lavador e Pintura</h1>
         <p class="subtitle">Registre, acompanhe e visualize o status dos serviços</p>
       </div>
     </div>
@@ -41,7 +41,7 @@
     <section id="main-content">
       <div class="welcome-screen">
         <div class="card">
-          <h2>Bem-vindo ao Controle Lavador</h2>
+          <h2>Bem-vindo ao Controle de Atividades Lavador e Pintura</h2>
           <p>Selecione o módulo que deseja acessar:</p>
           
           <div class="modules-grid">
@@ -115,8 +115,12 @@
         <label>TAG 1
           <input name="tag1" type="text" maxlength="20" />
         </label>
-        <label>TAG 2
-          <input name="tag2" type="text" maxlength="20" />
+        <label>Tipo de Serviço
+          <select name="tag2" required>
+            <option value="">Selecione...</option>
+            <option value="LAVAGEM">LAVAGEM</option>
+            <option value="PINTURA">PINTURA</option>
+          </select>
         </label>
         <label>Paletes
           <input name="paletes" type="number" min="0" step="1" />
