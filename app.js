@@ -99,7 +99,7 @@ function initTabs(){
   }));
 }
 function initConsumo(){$('#consumoLavador').value=state.meta.consumo||0; $('#btnSalvarConsumo').onclick=()=>{const v=Number($('#consumoLavador').value||0); state.meta.consumo=isNaN(v)?0:v; save(state.dados,state.meta); renderDashboard();};}
-function preencherListasAuxiliares(){const fl=$('#frenteList'); fl.innerHTML=''; state.meta.frentes.forEach(f=>{const o=document.createElement('option'); o.value=f; fl.appendChild(o);}); const rl=$('#respList'); rl.innerHTML=''; state.meta.responsaveis.forEach(f=>{const o=document.createElement('option'); o.value=f; rl.appendChild(o);}); $('#filtroResponsavel').innerHTML='<option value=\"\">Responsável (todos)</option>'+state.meta.responsaveis.map(r=>`<option>${r}</option>`).join(''); $('#filtroFrente').innerHTML='<option value=\"\">Frente (todas)</option>'+state.meta.frentes.map(r=>`<option>${r}</option>`).join('');}
+function preencherListasAuxiliares(){const fl=$('#frenteList'); fl.innerHTML=''; state.meta.frentes.forEach(f=>{const o=document.createElement('option'); o.value=f; fl.appendChild(o);}); const rl=$('#respList'); rl.innerHTML=''; state.meta.responsaveis.forEach(f=>{const o=document.createElement('option'); o.value=f; rl.appendChild(o);}); $('#filtroResponsavel').innerHTML='<option value=\"\">Todos os responsáveis</option>'+state.meta.responsaveis.map(r=>`<option value=\"${r}\">${r}</option>`).join(''); $('#filtroFrente').innerHTML='<option value=\"\">Todas as frentes</option>'+state.meta.frentes.map(r=>`<option value=\"${r}\">${r}</option>`).join('');}
 function abrirModal(reg=null){
   const dlg=$('#modal');
   $('#modalTitulo').textContent=reg?'Editar registro':'Novo registro';
@@ -516,6 +516,52 @@ function bindToolbar(){
         renderTable();
         renderDashboard();
       }
+    };
+  }
+  
+  // Event listeners para os filtros
+  const busca = $('#busca');
+  const filtroStatus = $('#filtroStatus');
+  const filtroResponsavel = $('#filtroResponsavel');
+  const filtroFrente = $('#filtroFrente');
+  const filtroDe = $('#filtroDe');
+  const filtroAte = $('#filtroAte');
+  const btnLimparFiltros = $('#btnLimparFiltros');
+  
+  // Adicionar event listeners para renderizar tabela quando filtros mudarem
+  if(busca) {
+    busca.addEventListener('input', renderTable);
+  }
+  
+  if(filtroStatus) {
+    filtroStatus.addEventListener('change', renderTable);
+  }
+  
+  if(filtroResponsavel) {
+    filtroResponsavel.addEventListener('change', renderTable);
+  }
+  
+  if(filtroFrente) {
+    filtroFrente.addEventListener('change', renderTable);
+  }
+  
+  if(filtroDe) {
+    filtroDe.addEventListener('change', renderTable);
+  }
+  
+  if(filtroAte) {
+    filtroAte.addEventListener('change', renderTable);
+  }
+  
+  if(btnLimparFiltros) {
+    btnLimparFiltros.onclick = () => {
+      if(busca) busca.value = '';
+      if(filtroStatus) filtroStatus.value = '';
+      if(filtroResponsavel) filtroResponsavel.value = '';
+      if(filtroFrente) filtroFrente.value = '';
+      if(filtroDe) filtroDe.value = '';
+      if(filtroAte) filtroAte.value = '';
+      renderTable();
     };
   }
 }
