@@ -158,6 +158,12 @@
       }
       if(typeof initConsumo === 'function') initConsumo();
       if(typeof renderDashboard === 'function') renderDashboard();
+      // Atualizar dashboard automaticamente quando os dados mudarem em outra aba
+      window.addEventListener('storage', function(e) {
+        if(e.key === 'controle-lavador-dados' || e.key === 'controle-lavador-meta') {
+          if(typeof renderDashboard === 'function') renderDashboard();
+        }
+      });
     });
   </script>
 </body>

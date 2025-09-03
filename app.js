@@ -577,7 +577,12 @@ function bindConfig(){
         $('#frente1').value.trim(),
         $('#frente2').value.trim(),
         $('#frente3').value.trim(),
-        $('#frente4').value.trim()
+        $('#frente4').value.trim(),
+        $('#frente5').value.trim(),
+        $('#frente6').value.trim(),
+        $('#frente7').value.trim(),
+        $('#frente8').value.trim(),
+        $('#frente9').value.trim()
       ].filter(f => f);
       
       state.meta.frentes = frentes;
@@ -606,6 +611,11 @@ function bindConfig(){
     $('#frente2').value = state.meta.frentes[1] || '';
     $('#frente3').value = state.meta.frentes[2] || '';
     $('#frente4').value = state.meta.frentes[3] || '';
+    $('#frente5').value = state.meta.frentes[4] || '';
+    $('#frente6').value = state.meta.frentes[5] || '';
+    $('#frente7').value = state.meta.frentes[6] || '';
+    $('#frente8').value = state.meta.frentes[7] || '';
+    $('#frente9').value = state.meta.frentes[8] || '';
   }
   
   renderListaResponsaveis();
