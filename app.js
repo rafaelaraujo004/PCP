@@ -3,8 +3,62 @@ const $=(s,c=document)=>c.querySelector(s);const $$=(s,c=document)=>Array.from(c
 const uid=()=>Math.random().toString(36).slice(2,10);
 const load=()=>({dados:JSON.parse(localStorage.getItem(LS_KEY)||'[]'),meta:JSON.parse(localStorage.getItem(LS_META)||'{}')});
 const save=(d,m)=>{localStorage.setItem(LS_KEY,JSON.stringify(d));localStorage.setItem(LS_META,JSON.stringify(m));};
-const fmtData=v=>{if(!v) return '';const d=new Date(v); if(isNaN(d)) return v; return d.toLocaleDateString('pt-BR');};
-const fmtDataISO=v=>{if(!v) return '';const d=new Date(v); if(isNaN(d)) return v; return d.toISOString().slice(0,10);};
+const fmtData=v=>{
+  if(!v) return '';
+  
+  // Se já está no formato DD/MM/YYYY, retorna como está
+  if(typeof v === 'string' && v.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
+    return v;
+  }
+  
+  // Se está no formato ISO (YYYY-MM-DD), converte diretamente sem timezone
+  if(typeof v === 'string' && v.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    const [ano, mes, dia] = v.split('-');
+    return `${dia.padStart(2,'0')}/${mes.padStart(2,'0')}/${ano}`;
+  }
+  
+  // Tenta criar uma data válida
+  const d = new Date(v); 
+  if(isNaN(d)) return v; // Se não conseguir converter, retorna o valor original
+  
+  // Converte para formato brasileiro
+  return d.toLocaleDateString('pt-BR');
+};
+const fmtDataISO=v=>{
+  if(!v) return '';
+  
+  // Se já está no formato ISO (YYYY-MM-DD), retorna como está
+  if(typeof v === 'string' && v.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    return v;
+  }
+  
+  // Se está no formato DD/MM/YYYY, converte para ISO
+  if(typeof v === 'string' && v.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
+    const [dia, mes, ano] = v.split('/');
+    return `${ano}-${mes.padStart(2,'0')}-${dia.padStart(2,'0')}`;
+  }
+  
+  // Tenta criar uma data válida
+  const d = new Date(v); 
+  if(isNaN(d)) return v; // Se não conseguir converter, retorna o valor original
+  
+  // Converte para formato ISO
+  return d.toISOString().slice(0,10);
+};
+
+// Função auxiliar para criar data sem problemas de timezone
+const criarDataLocal = (dateStr) => {
+  if(!dateStr) return null;
+  
+  // Se é formato ISO (YYYY-MM-DD), cria data local
+  if(typeof dateStr === 'string' && dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    const [ano, mes, dia] = dateStr.split('-');
+    return new Date(parseInt(ano), parseInt(mes) - 1, parseInt(dia));
+  }
+  
+  // Para outros formatos, usa Date normal
+  return new Date(dateStr);
+};
 
 let state=load();
 if(!state.meta.frentes){state.meta.frentes=["EVA","EUDO CONCEIÇÃO","VICENTE DE PAULA","FRENTE 4"];}
@@ -73,7 +127,7 @@ function abrirModal(reg=null){
   $('#btnSalvarRegistro').disabled=true;
   dlg.showModal();
 }
-function renderTable(){const tb=$('#tabela tbody'); tb.innerHTML=''; const q=($('#busca').value||'').toLowerCase(); const fs=$('#filtroStatus').value; const fr=$('#filtroResponsavel').value; const ff=$('#filtroFrente').value; const dDe=$('#filtroDe').value?new Date($('#filtroDe').value):null; const dAte=$('#filtroAte').value?new Date($('#filtroAte').value):null; const rows=state.dados.filter(r=>{const txt=[r.descricao,r.os,r.setor,r.responsavel,r.frente,r.tag1,r.tag2].join(' ').toLowerCase(); if(q && !txt.includes(q)) return false; if(fs && r.status!==fs) return false; if(fr && r.responsavel!==fr) return false; if(ff && r.frente!==ff) return false; if(dDe||dAte){const d=r.fim?new Date(r.fim):null; if(dDe && (!d||d<dDe)) return false; if(dAte && (!d||d>dAte)) return false;} return true;}); rows.sort((a,b)=>(a.fim||'').localeCompare(b.fim||'')); for(const r of rows){const tr=document.createElement('tr'); const sClass=r.status==='FINALIZADO'?'finalizado':(r.status==='EM PROCESSO'?'processo':'programado'); tr.innerHTML=`
+function renderTable(){const tb=$('#tabela tbody'); tb.innerHTML=''; const q=($('#busca').value||'').toLowerCase(); const fs=$('#filtroStatus').value; const fr=$('#filtroResponsavel').value; const ff=$('#filtroFrente').value; const dDe=$('#filtroDe').value?criarDataLocal($('#filtroDe').value):null; const dAte=$('#filtroAte').value?criarDataLocal($('#filtroAte').value):null; const rows=state.dados.filter(r=>{const txt=[r.descricao,r.os,r.setor,r.responsavel,r.frente,r.tag1,r.tag2].join(' ').toLowerCase(); if(q && !txt.includes(q)) return false; if(fs && r.status!==fs) return false; if(fr && r.responsavel!==fr) return false; if(ff && r.frente!==ff) return false; if(dDe||dAte){const d=r.fim?criarDataLocal(r.fim):null; if(dDe && (!d||d<dDe)) return false; if(dAte && (!d||d>dAte)) return false;} return true;}); rows.sort((a,b)=>(a.fim||'').localeCompare(b.fim||'')); for(const r of rows){const tr=document.createElement('tr'); const sClass=r.status==='FINALIZADO'?'finalizado':(r.status==='EM PROCESSO'?'processo':'programado'); tr.innerHTML=`
       <td>${r.descricao||''}</td><td>${r.tag1||''}</td><td>${r.tag2||''}</td><td>${r.paletes??''}</td><td>${r.observacoes||''}</td><td>${r.os||''}</td><td>${r.setor||''}</td><td><span class="badge ${sClass}">${r.status||''}</span></td><td>${r.responsavel||''}</td><td>${r.frente||''}</td><td>${fmtData(r.fim)||''}</td>
       <td><div class="row-actions"><button class="ghost" data-act="edit" data-id="${r.id}">Editar</button><button class="danger" data-act="del" data-id="${r.id}">Excluir</button></div></td>`; tb.appendChild(tr);} tb.querySelectorAll('button[data-act="edit"]').forEach(b=>b.onclick=()=>{const reg=state.dados.find(x=>x.id===b.dataset.id); abrirModal(reg);}); tb.querySelectorAll('button[data-act="del"]').forEach(b=>b.onclick=()=>{const id=b.dataset.id; if(confirm('Excluir este registro?')){state.dados=state.dados.filter(x=>x.id!==id); save(state.dados,state.meta); renderTable(); renderDashboard();}});}
 function renderDashboard(){const total=state.dados.length; const programado=state.dados.filter(r=>r.status==='PROGRAMADO').length; const processo=state.dados.filter(r=>r.status==='EM PROCESSO').length; const finalizado=state.dados.filter(r=>r.status==='FINALIZADO').length; $('#kpiTotal').textContent=total; $('#kpiProgramado').textContent=programado; $('#kpiEmProcesso').textContent=processo; $('#kpiFinalizado').textContent=finalizado; $('#kpiConsumo').textContent=state.meta.consumo||0; window._charts ||= {}; for(const k in window._charts){window._charts[k].destroy();}
@@ -148,16 +202,17 @@ function renderDashboard(){const total=state.dados.length; const programado=stat
     },
     options:{
       responsive:true,
-      cutout:'60%',
-      radius:'55%',
+      cutout:'50%',
+      radius:'70%',
       plugins:{
         legend:{
           display:true,
           position:'bottom',
           labels:{
             boxWidth:8,
-            font:{size:9},
-            padding:8,
+            font:{size:10},
+            padding:10,
+            color: document.documentElement.classList.contains('light-theme') ? '#000000' : '#f7fafc',
             generateLabels:function(chart){
               const data = chart.data;
               if(data.labels.length && data.datasets.length){
@@ -569,6 +624,17 @@ function bindModal(){
   form.addEventListener('submit', e => {
     e.preventDefault();
     const data = Object.fromEntries(new FormData(form).entries());
+    
+    // Garantir que a data seja salva no formato ISO
+    let dataFim = data.fim || '';
+    if(dataFim) {
+      // Se já está no formato DD/MM/YYYY, converter para ISO
+      if(dataFim.includes('/')) {
+        const [dia, mes, ano] = dataFim.split('/');
+        dataFim = `${ano}-${mes.padStart(2,'0')}-${dia.padStart(2,'0')}`;
+      }
+    }
+    
     const reg = {
       id: form.dataset.editing || uid(),
       descricao: data.descricao?.trim(),
@@ -581,7 +647,7 @@ function bindModal(){
       status: data.status || 'PROGRAMADO',
       responsavel: data.responsavel?.trim(),
       frente: data.frente?.trim(),
-      fim: data.fim || ''
+      fim: dataFim
     };
     
     if(form.dataset.editing){
@@ -647,6 +713,11 @@ function toggleTheme(){
   const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
   applyTheme(newTheme);
   localStorage.setItem('controle-lavador-theme', newTheme);
+  
+  // Recriar gráficos para aplicar as novas cores de legenda
+  if(window.location.pathname.includes('dashboard.html')){
+    renderDashboard();
+  }
 }
 
 function applyTheme(theme){

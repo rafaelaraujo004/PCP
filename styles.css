@@ -45,7 +45,17 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:
 h1,h2,h3{margin:0 0 .5rem}
 .app-header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--border);background:linear-gradient(180deg,var(--panel),var(--bg));position:sticky;top:0;z-index:10}
 .brand{display:flex;gap:12px;align-items:center}
-.logo{background:var(--primary);color:white;font-weight:800;border-radius:12px;padding:10px 12px;box-shadow:var(--shadow)}
+.logo{
+  background-image: url('logo.svg');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  width: 80px;
+  height: 40px;
+  font-size: 0; /* Hide text */
+  border-radius: 8px;
+  /* Removed background and shadow for clean transparent logo */
+}
 .subtitle{color:var(--muted);font-size:.9rem}
 .header-actions{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
 .navigation{display:flex;gap:8px;align-items:center}
@@ -525,7 +535,43 @@ td .row-actions{display:flex;gap:6px}
 .card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:12px;box-shadow:var(--shadow)}
 .card.wide{grid-column:1 / -1}
 .card h3{margin:0 0 8px 0;font-size:1rem}
-#chartResp{max-height:200px!important;width:auto!important}
+#chartResp{max-height:280px!important;width:auto!important}
+
+/* Chart legend styles for better visibility */
+.chartjs-legend,
+.chartjs-legend li,
+.chartjs-legend-label {
+  color: var(--text) !important;
+  font-weight: 500 !important;
+  font-size: 11px !important;
+  line-height: 1.4 !important;
+}
+
+/* Chart.js legend specific styles */
+canvas + div,
+.chartjs-legend ul,
+.chartjs-legend ul li {
+  color: var(--text) !important;
+  font-weight: 500 !important;
+}
+
+:root.light-theme .chartjs-legend,
+:root.light-theme .chartjs-legend li,
+:root.light-theme .chartjs-legend-label,
+:root.light-theme canvas + div,
+:root.light-theme .chartjs-legend ul,
+:root.light-theme .chartjs-legend ul li {
+  color: #000000 !important;
+}
+
+:root:not(.light-theme) .chartjs-legend,
+:root:not(.light-theme) .chartjs-legend li,
+:root:not(.light-theme) .chartjs-legend-label,
+:root:not(.light-theme) canvas + div,
+:root:not(.light-theme) .chartjs-legend ul,
+:root:not(.light-theme) .chartjs-legend ul li {
+  color: #f7fafc !important;
+}
 .footer{padding:18px;color:var(--muted);text-align:center;border-top:1px solid var(--border);margin-top:24px}
 dialog{border:none;border-radius:16px;padding:0;max-width:980px;width:96%}
 .modal-header{display:flex;justify-content:space-between;align-items:center;background:var(--panel);padding:12px 16px;border-bottom:1px solid var(--border)}
