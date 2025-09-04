@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dashboard - Controle de Atividades Lavador e Pintura</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="logo.svg" type="image/svg+xml">
+  <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand">
+      <div class="logo">U&M</div>
+      <div class="titles">
+        <h1>📈 Dashboard - Controle de Atividades Lavador e Pintura</h1>
+        <p class="subtitle">Visualização de dados, estatísticas e indicadores de performance</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div class="consumo-box">
+        <label for="consumoLavador">💧 Consumo Lavador</label>
+        <input id="consumoLavador" type="number" step="1" min="0" placeholder="0" />
+        <button id="btnSalvarConsumo" class="primary">Salvar</button>
+      </div>
+      <div class="theme-toggle">
+        <button id="btnToggleTheme" class="ghost" title="Alternar modo claro/escuro" onclick="toggleThemeLocal()">
+          <span id="themeIcon">🌙</span>
+        </button>
+      </div>
+      <div class="navigation">
+        <button id="btnVoltar" class="ghost">🏠 Início</button>
+        <button id="btnRegistros" class="primary">📊 Registros</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section id="dashboard-content">
+      <div class="kpis">
+        <div class="kpi"><div class="kpi-label">Total</div><div id="kpiTotal" class="kpi-value">0</div></div>
+        <div class="kpi"><div class="kpi-label">Programados</div><div id="kpiProgramado" class="kpi-value">0</div></div>
+        <div class="kpi"><div class="kpi-label">Em processo</div><div id="kpiEmProcesso" class="kpi-value">0</div></div>
+        <div class="kpi"><div class="kpi-label">Finalizados</div><div id="kpiFinalizado" class="kpi-value">0</div></div>
+        <div class="kpi"><div class="kpi-label">Consumo</div><div id="kpiConsumo" class="kpi-value">0</div></div>
+      </div>
+
+      <div class="charts">
+        <div class="card">
+          <h3>Registros por Status</h3>
+          <canvas id="chartStatus" height="100"></canvas>
+        </div>
+        <div class="card">
+          <h3>Registros por Responsável</h3>
+          <canvas id="chartResp" height="120"></canvas>
+        </div>
+        <div class="card wide">
+          <h3>Paletes por Tipo de Serviço</h3>
+          <canvas id="chartLinha" height="60"></canvas>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <small>Feito em HTML, CSS e JavaScript • Dados armazenados no seu navegador (localStorage)</small>
+  </footer>
+
+  <script>
+    // Teste básico
+    console.log('Dashboard.html carregado!');
+    
+    // Funções locais para o tema
+    function toggleThemeLocal() {
+      console.log('🎨 Toggle theme local chamado');
+      
+      if (typeof toggleTheme === 'function') {
+        console.log('✅ Usando função original do app.js');
+        toggleTheme();
+      } else {
+        console.log('⚠️ Usando função local');
+        const root = document.documentElement;
+        const themeIcon = document.getElementById('themeIcon');
+        const btnTheme = document.getElementById('btnToggleTheme');
+        
+        if (root.classList.contains('light-theme')) {
+          // Mudar para escuro
+          root.classList.remove('light-theme');
+          if (themeIcon) themeIcon.textContent = '🌙';
+          if (btnTheme) btnTheme.title = 'Alternar para modo claro';
+          localStorage.setItem('controle-lavador-theme', 'dark');
+          console.log('🌙 Mudou para modo escuro');
+        } else {
+          // Mudar para claro
+          root.classList.add('light-theme');
+          if (themeIcon) themeIcon.textContent = '☀️';
+          if (btnTheme) btnTheme.title = 'Alternar para modo escuro';
+          localStorage.setItem('controle-lavador-theme', 'light');
+          console.log('☀️ Mudou para modo claro');
+        }
+      }
+    }
+    
+    function initThemeLocal() {
+      const savedTheme = localStorage.getItem('controle-lavador-theme') || 'dark';
+      const root = document.documentElement;
+      const themeIcon = document.getElementById('themeIcon');
+      const btnTheme = document.getElementById('btnToggleTheme');
+      
+      if (savedTheme === 'light') {
+        root.classList.add('light-theme');
+        if (themeIcon) themeIcon.textContent = '☀️';
+        if (btnTheme) btnTheme.title = 'Alternar para modo escuro';
+      } else {
+        root.classList.remove('light-theme');
+        if (themeIcon) themeIcon.textContent = '🌙';
+        if (btnTheme) btnTheme.title = 'Alternar para modo claro';
+      }
+      
+      console.log('🎨 Tema inicializado (local):', savedTheme);
+    }
+    
+    // Função de teste para o tema
+    window.testarTemaDashboard = function() {
+      console.log('🧪 Testando tema no dashboard...');
+      toggleThemeLocal();
+    };
+    
+    // Inicializar apenas o dashboard
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('DOM dashboard carregado!');
+      
+      // Inicializar tema primeiro
+      initThemeLocal();
+      
+      // Configurar botões de navegação
+      const btnVoltar = document.getElementById('btnVoltar');
+      const btnRegistros = document.getElementById('btnRegistros');
+      
+      if (btnVoltar) {
+        btnVoltar.addEventListener('click', () => {
+          window.location.href = 'index.html';
+        });
+      }
+      
+      if (btnRegistros) {
+        btnRegistros.addEventListener('click', () => {
+          window.location.href = 'registros.html';
+        });
+      }
+      
+      // Verificar se as funções existem antes de chamar
+      if(typeof initTheme === 'function') {
+        console.log('🎨 Reinicializando com app.js...');
+        initTheme();
+      }
+      if(typeof initConsumo === 'function') initConsumo();
+      if(typeof renderDashboard === 'function') renderDashboard();
+      // Atualizar dashboard automaticamente quando os dados mudarem em outra aba
+      window.addEventListener('storage', function(e) {
+        if(e.key === 'controle-lavador-dados' || e.key === 'controle-lavador-meta') {
+          if(typeof renderDashboard === 'function') renderDashboard();
+        }
+      });
+    });
+  </script>
+</body>
+</html>
