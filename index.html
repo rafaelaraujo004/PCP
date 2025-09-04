@@ -1,278 +1,1032 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Controle de Atividades Lavador e Pintura</title>
-  <link rel="stylesheet" href="styles.css" />
-  <link rel="icon" href="logo.svg" type="image/svg+xml">
-  <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <script defer src="app.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FORM 384 - TRANSFERÊNCIA DE EQUIPAMENTOS</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
-  <header class="app-header">
-    <div class="brand">
-      <div class="logo">U&amp;M</div>
-      <div class="titles">
-        <h1>Controle de Atividades Lavador e Pintura</h1>
-        <p class="subtitle">Registre, acompanhe e visualize o status dos serviços</p>
-      </div>
-    </div>
-    <div class="header-actions">
-      <div class="consumo-box">
-        <label for="consumoLavador">Consumo Lavador</label>
-        <input id="consumoLavador" type="number" step="1" min="0" placeholder="0" />
-        <button id="btnSalvarConsumo" class="primary">Salvar</button>
-      </div>
-      <div class="theme-toggle">
-        <button id="btnToggleTheme" class="ghost" title="Alternar modo claro/escuro" onclick="toggleThemeBackup()">
-          <span id="themeIcon">🌙</span>
-        </button>
-      </div>
-      <div class="tabbar">
-        <button class="tab" onclick="navegarPara('registros.html')">📊 Registros</button>
-        <button class="tab" onclick="navegarPara('dashboard.html')">📈 Dashboard</button>
-      </div>
-    </div>
-  </header>
-
-  <main>
-    <section id="main-content">
-      <div class="welcome-screen">
-        <div class="card">
-          <h2>Bem-vindo ao Controle de Atividades Lavador e Pintura</h2>
-          <p>Selecione o módulo que deseja acessar:</p>
-          
-          <div class="modules-grid">
-            <div class="module-card">
-              <h3>📊 Registros</h3>
-              <p>Gerencie registros, crie novos itens, configure frentes e responsáveis.</p>
-              <button class="primary" onclick="navegarPara('registros.html')">Abrir Registros</button>
+    <div class="container">
+        <!-- Cabeçalho exato como no formulário original -->
+        <div class="form-header">
+            <div class="logo-section">
+                <!-- Logo removida conforme solicitado -->
             </div>
-            
-            <div class="module-card">
-              <h3>📈 Dashboard</h3>
-              <p>Visualize estatísticas, gráficos e métricas dos dados.</p>
-              <button class="primary" onclick="navegarPara('dashboard.html')">Abrir Dashboard</button>
+            <div class="title-section">
+                <h1>TRANSFERÊNCIA DE EQUIPAMENTOS</h1>
             </div>
-          </div>
-          
-          <div class="quick-actions">
-            <h3>⚡ Ações Rápidas</h3>
-            <div class="actions-row">
-              <button class="ghost" onclick="navegarPara('registros.html')">➕ Criar Registro</button>
-              <button class="ghost" onclick="navegarPara('registros.html')">📊 Exportar Dados</button>
-              <button class="ghost" onclick="navegarPara('registros.html')">📁 Importar Dados</button>
+            <div class="form-info">
+                <div class="form-number">FORM 384</div>
+                <div class="revision">Revisão 09</div>
             </div>
-            <p class="quick-actions-note">* Clique para ir à página de registros e executar a ação</p>
-          </div>
         </div>
-      </div>
-    </section>
-  </main>
 
-  <!-- Modal de Configurações -->
-  <dialog id="modalConfig">
-    <form method="dialog">
-      <header class="modal-header">
-        <h3>Configurações - Frentes e Responsáveis</h3>
-        <button class="icon" value="cancel" aria-label="Fechar">✕</button>
-      </header>
-      <div class="modal-body">
-        <p>Edite as frentes padrão (usadas em filtros e no formulário).</p>
-        <div class="grid-2">
-          <div>
-            <label>Frente 1 <input id="frente1" type="text" placeholder="EVA"></label>
-            <label>Frente 2 <input id="frente2" type="text" placeholder="EUDO CONCEIÇÃO"></label>
-            <label>Frente 3 <input id="frente3" type="text" placeholder="VICENTE DE PAULA"></label>
-            <label>Frente 4 <input id="frente4" type="text" placeholder="FRENTE 4"></label>
-            <label>Frente 5 <input id="frente5" type="text" placeholder="FRENTE 5"></label>
-            <label>Frente 6 <input id="frente6" type="text" placeholder="FRENTE 6"></label>
-            <label>Frente 7 <input id="frente7" type="text" placeholder="FRENTE 7"></label>
-            <label>Frente 8 <input id="frente8" type="text" placeholder="FRENTE 8"></label>
-            <label>Frente 9 <input id="frente9" type="text" placeholder="FRENTE 9"></label>
-            <button id="btnSalvarFrentes" class="primary">Salvar frentes</button>
-          </div>
-          <div>
-            <label>Novo responsável <input id="novoResponsavel" type="text" placeholder="Nome"></label>
-            <button id="btnAddResp" class="ghost">Adicionar responsável</button>
-            <ul id="listaResponsaveis" class="tags"></ul>
-          </div>
+        <!-- Seção de informações básicas -->
+        <div class="info-section">
+            <div class="info-row">
+                <div class="info-field">
+                    <label>Fabricante:</label>
+                    <input type="text" id="fabricante" name="fabricante" placeholder="DIGITE O FABRICANTE" style="text-transform: uppercase;">
+                </div>
+                <div class="info-field">
+                    <label>Modelo:</label>
+                    <input type="text" id="modelo" name="modelo" placeholder="DIGITE O MODELO" style="text-transform: uppercase;">
+                </div>
+                <div class="info-field">
+                    <label>Ano Fabricação:</label>
+                    <input type="number" id="ano_fabricacao" name="ano_fabricacao" placeholder="2023" min="1900" max="2030">
+                </div>
+                <div class="info-field">
+                    <label>Série:</label>
+                    <input type="text" id="serie" name="serie" placeholder="NÚMERO DE SÉRIE" style="text-transform: uppercase;">
+                </div>
+            </div>
+
+            <div class="info-row">
+                <div class="info-field">
+                    <label>KM:</label>
+                    <input type="number" id="km" name="km" placeholder="0" min="0" step="1">
+                </div>
+                <div class="info-field">
+                    <label>Horímetro:</label>
+                    <input type="number" id="horimetro" name="horimetro" placeholder="0" min="0" step="0.1">
+                </div>
+                <div class="info-field tag-field">
+                    <label>TAG:</label>
+                    <input type="text" id="tag" name="tag" placeholder="CR-1234" pattern="[A-Z]{2}-[0-9]{4}" title="Formato: XX-XXXX - Ex: CR-1075" maxlength="7" style="text-transform: uppercase;">
+                    <small class="format-hint">Formato: XX-XXXX</small>
+                </div>
+                <div class="info-field">
+                    <label>Data:</label>
+                    <input type="date" id="data" name="data">
+                </div>
+            </div>
+
+            <div class="info-row">
+                <div class="info-field wide">
+                    <label>Origem:</label>
+                    <input type="text" id="origem" name="origem" placeholder="LOCAL DE ORIGEM" style="text-transform: uppercase;">
+                </div>
+                <div class="info-field wide">
+                    <label>Destino:</label>
+                    <input type="text" id="destino" name="destino" placeholder="LOCAL DE DESTINO" style="text-transform: uppercase;">
+                </div>
+                <div class="info-field wide">
+                    <label>Técnico Responsável:</label>
+                    <input type="text" id="tecnico_responsavel" name="tecnico_responsavel" placeholder="NOME DO TÉCNICO" style="text-transform: uppercase;">
+                </div>
+            </div>
         </div>
-      </div>
-      <footer class="modal-footer">
-        <button class="ghost" value="cancel">Fechar</button>
-      </footer>
-    </form>
-  </dialog>
 
-  <dialog id="modal">
-    <form method="dialog" id="formRegistro">
-      <header class="modal-header">
-        <h3 id="modalTitulo">Novo registro</h3>
-        <button class="icon" value="cancel" aria-label="Fechar">✕</button>
-      </header>
-      <div class="modal-body grid-3">
-        <label>Descrição
-          <input required name="descricao" type="text" maxlength="120" />
-        </label>
-        <label>TAG
-          <input name="tag1" type="text" maxlength="20" />
-        </label>
-        <label>Tipo de Serviço
-          <select name="tag2" required>
-            <option value="">Selecione...</option>
-            <option value="LAVAGEM">LAVAGEM</option>
-            <option value="PINTURA">PINTURA</option>
-          </select>
-        </label>
-        <label>Paletes
-          <input name="paletes" type="number" min="0" step="1" />
-        </label>
-        <label>Observações
-          <input name="observacoes" type="text" maxlength="160" />
-        </label>
-        <label>OS
-          <input name="os" type="text" maxlength="20" />
-        </label>
-        <label>Setor Solicitante
-          <input name="setor" type="text" maxlength="40" />
-        </label>
-        <label>Status
-          <select name="status" required>
-            <option>PROGRAMADO</option>
-            <option>EM PROCESSO</option>
-            <option>FINALIZADO</option>
-          </select>
-        </label>
-        <label>Responsável
-          <input list="respList" name="responsavel" type="text" />
-          <datalist id="respList"></datalist>
-        </label>
-        <label>Frente
-          <input list="frenteList" name="frente" type="text" />
-          <datalist id="frenteList"></datalist>
-        </label>
-        <label>Fim
-          <input name="fim" type="date" />
-        </label>
-      </div>
-      <footer class="modal-footer">
-        <span id="registroFeedback" style="display:none;color:green;margin-right:16px;font-weight:bold;"></span>
-        <button class="ghost" value="cancel">Cancelar</button>
-        <button class="primary" id="btnSalvarRegistro" value="default" disabled>Salvar</button>
-      </footer>
-    </form>
-  </dialog>
+        <!-- Seção Estrutura do Equipamento -->
+        <div class="section">
+            <div class="section-header">
+                <h2>Estrutura do Equipamento</h2>
+            </div>
+            <div class="instruction-text">
+                Atentar para o preenchimento das colunas
+            </div>
+            <table class="equipment-table">
+                <thead>
+                    <tr>
+                        <th class="item-col">Item</th>
+                        <th class="description-col">Descrição</th>
+                        <th class="status-col">Envio<br>OK/ NOK/ N/A</th>
+                        <th class="status-col">Recebimento<br>OK/ NOK/ N/A</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="item-number">1</td>
+                        <td class="description">
+                            <div class="description-text">Foi avaliada a estrutura do equipamento no SAP x físico?</div>
+                            <div class="sub-description">Conferir à árvore de componentes no SAP X físico, caso apresente divergência na conferência, indicar no campo Backlog.</div>
+                        </td>
+                        <td class="status-cell">
+                            <select name="estrutura_equipamento_envio">
+                                <option value="">-</option>
+                                <option value="OK">OK</option>
+                                <option value="NOK">NOK</option>
+                                <option value="N/A">N/A</option>
+                            </select>
+                        </td>
+                        <td class="status-cell">
+                            <select name="estrutura_equipamento_recebimento">
+                                <option value="">-</option>
+                                <option value="OK">OK</option>
+                                <option value="NOK">NOK</option>
+                                <option value="N/A">N/A</option>
+                            </select>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
 
-  <footer class="footer">
-    <small>Feito em HTML, CSS e JavaScript • Dados armazenados no seu navegador (localStorage)</small>
-  </footer>
+        <!-- Seção Cabine -->
+        <div class="section">
+            <div class="section-header gray">
+                <h2>Cabine</h2>
+            </div>
+            <div class="instruction-text">
+                Atentar para o preenchimento das colunas
+            </div>
+            <table class="equipment-table">
+                <thead>
+                    <tr>
+                        <th class="item-col">Item</th>
+                        <th class="description-col">Descrição</th>
+                        <th class="status-col">Envio<br>OK/ NOK/ N/A</th>
+                        <th class="status-col">Recebimento<br>OK/ NOK/ N/A</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td class="item-number">1</td><td class="description">Portas</td><td class="status-cell"><select name="cabine_portas_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="cabine_portas_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">2</td><td class="description">Retrovisores</td><td class="status-cell"><select name="cabine_retrovisores_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="cabine_retrovisores_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">3</td><td class="description">Acionamento dos vidros</td><td class="status-cell"><select name="cabine_acionamento_vidros_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="cabine_acionamento_vidros_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">4</td><td class="description">Estado dos vidros</td><td class="status-cell"><select name="cabine_estado_vidros_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="cabine_estado_vidros_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">5</td><td class="description">Estado das fechaduras/maçanetas</td><td class="status-cell"><select name="cabine_fechaduras_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="cabine_fechaduras_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">6</td><td class="description">Vedação das portas</td><td class="status-cell"><select name="cabine_vedacao_portas_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="cabine_vedacao_portas_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">7</td><td class="description">Painel e seus acabamentos</td><td class="status-cell"><select name="cabine_painel_componentes_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="cabine_painel_componentes_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">8</td><td class="description">Painel de instrumentos</td><td class="status-cell"><select name="cabine_painel_instrumentos_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="cabine_painel_instrumentos_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">9</td><td class="description">Volante/ Joystick/ Alavanca de Marcha/ Comando de implementos</td><td class="status-cell"><select name="cabine_volante_joystick_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="cabine_volante_joystick_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">10</td><td class="description">Instrumentos de operação do implemento</td><td class="status-cell"><select name="cabine_instrumentos_operacao_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="cabine_instrumentos_operacao_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">11</td><td class="description">Pedais</td><td class="status-cell"><select name="cabine_pedalar_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="cabine_pedalar_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">12</td><td class="description">Alerta visual e sonoro de posicionamento da báscula</td><td class="status-cell"><select name="cabine_alerta_visual_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="cabine_alerta_visual_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">13</td><td class="description">Ar Condicionado</td><td class="status-cell"><select name="cabine_ar_condicionado_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="cabine_ar_condicionado_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">14</td><td class="description">Banco(s)</td><td class="status-cell"><select name="cabine_bancos_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="cabine_bancos_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">15</td><td class="description">Cinto de segurança</td><td class="status-cell"><select name="cabine_cinto_seguranca_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="cabine_cinto_seguranca_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">16</td><td class="description">Chave de ignição e reservas</td><td class="status-cell"><select name="cabine_estrutura_protecao_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="cabine_estrutura_protecao_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">17</td><td class="description">Extintor de incêndio</td><td class="status-cell"><select name="cabine_extintor_incendio_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="cabine_extintor_incendio_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">18</td><td class="description">Limpador/esguicho do para-brisa</td><td class="status-cell"><select name="cabine_limpador_parabrisa_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="cabine_limpador_parabrisa_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">19</td><td class="description">Manual</td><td class="status-cell"><select name="cabine_manual_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="cabine_manual_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">20</td><td class="description">CRLV, CIV, CIPP, Laudo dos Vasos de Pressão e Manômetro</td><td class="status-cell"><select name="cabine_documentos_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="cabine_documentos_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">21</td><td class="description">Sistema de acionamento do implemento</td><td class="status-cell"><select name="cabine_sistema_acionamento_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="cabine_sistema_acionamento_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">22</td><td class="description">Tacógrafo</td><td class="status-cell"><select name="cabine_tacografo_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="cabine_tacografo_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                </tbody>
+            </table>
+            <div class="observation-box">
+                <div class="observation-label">Observações/ Justificativa para os itens preenchidos como NOK:</div>
+                <div class="observation-fields">
+                    <div class="observation-field">
+                        <label>Envio</label>
+                        <textarea name="obs_cabine_envio" rows="3"></textarea>
+                    </div>
+                    <div class="observation-field">
+                        <label>Recebimento</label>
+                        <textarea name="obs_cabine_recebimento" rows="3"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-  <script>
-    // Função simples para navegação
-    function navegarPara(url) {
-      console.log('🔄 Navegando para:', url);
-      try {
-        window.location.href = url;
-      } catch(e) {
-        console.error('Erro na navegação:', e);
-        // Fallback
-        window.open(url, '_self');
-      }
-    }
-    
-    // Funções de backup para o tema (caso app.js não carregue)
-    function toggleThemeBackup() {
-      console.log('🎨 Toggle theme backup chamado');
-      
-      if (typeof toggleTheme === 'function') {
-        console.log('✅ Usando função original do app.js');
-        toggleTheme();
-      } else {
-        console.log('⚠️ Usando função backup inline');
-        const root = document.documentElement;
-        const themeIcon = document.getElementById('themeIcon');
-        const btnTheme = document.getElementById('btnToggleTheme');
-        
-        if (root.classList.contains('light-theme')) {
-          // Mudar para escuro
-          root.classList.remove('light-theme');
-          if (themeIcon) themeIcon.textContent = '🌙';
-          if (btnTheme) btnTheme.title = 'Alternar para modo claro';
-          localStorage.setItem('controle-lavador-theme', 'dark');
-          console.log('🌙 Mudou para modo escuro');
-        } else {
-          // Mudar para claro
-          root.classList.add('light-theme');
-          if (themeIcon) themeIcon.textContent = '☀️';
-          if (btnTheme) btnTheme.title = 'Alternar para modo escuro';
-          localStorage.setItem('controle-lavador-theme', 'light');
-          console.log('☀️ Mudou para modo claro');
-        }
-      }
-    }
-    
-    function initThemeBackup() {
-      const savedTheme = localStorage.getItem('controle-lavador-theme') || 'dark';
-      const root = document.documentElement;
-      const themeIcon = document.getElementById('themeIcon');
-      const btnTheme = document.getElementById('btnToggleTheme');
-      
-      if (savedTheme === 'light') {
-        root.classList.add('light-theme');
-        if (themeIcon) themeIcon.textContent = '☀️';
-        if (btnTheme) btnTheme.title = 'Alternar para modo escuro';
-      } else {
-        root.classList.remove('light-theme');
-        if (themeIcon) themeIcon.textContent = '🌙';
-        if (btnTheme) btnTheme.title = 'Alternar para modo claro';
-      }
-      
-      console.log('🎨 Tema inicializado (backup):', savedTheme);
-    }
-    
-    // Teste direto dos botões quando DOM carregar
-    document.addEventListener('DOMContentLoaded', function() {
-      console.log('✅ DOM carregado - testando botões');
-      
-      // Inicializar tema imediatamente
-      initThemeBackup();
-      
-      // Adicionar eventos como backup
-      const botoes = document.querySelectorAll('button[onclick*="navegarPara"]');
-      botoes.forEach((btn, index) => {
-        console.log(`Botão ${index + 1} encontrado:`, btn.textContent);
-        
-        // Backup event listener
-        btn.addEventListener('click', function(e) {
-          console.log('🎯 Botão clicado via backup listener:', btn.textContent);
-        });
-      });
-      
-      // Tentar usar initTheme do app.js após um delay
-      setTimeout(() => {
-        if (typeof initTheme === 'function') {
-          console.log('🎨 Reinicializando com app.js...');
-          initTheme();
-        }
-      }, 200);
-    });
-    
-    // Log para debug
-    console.log('✅ Index.html carregado - Navegação e tema configurados');
-    
-    // Função de teste manual
-    window.testarNavegacao = function() {
-      console.log('🧪 Testando navegação...');
-      navegarPara('registros.html');
-    };
-    
-    window.testarTema = function() {
-      console.log('🧪 Testando tema...');
-      toggleThemeBackup();
-    };
-  </script>
+        <!-- Seção Estrutura Externa -->
+        <div class="section">
+            <div class="section-header">
+                <h2>Estrutura Externa</h2>
+            </div>
+            <div class="instruction-text">
+                Atentar para o preenchimento das colunas
+            </div>
+            <table class="equipment-table">
+                <thead>
+                    <tr>
+                        <th class="item-col">Item</th>
+                        <th class="description-col">Descrição</th>
+                        <th class="status-col">Envio<br>OK/ NOK/ N/A</th>
+                        <th class="status-col">Recebimento<br>OK/ NOK/ N/A</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td class="item-number">1</td><td class="description">Adesivo POP U&M completos - mobilização e transferência</td><td class="status-cell"><select name="adesivo_pop_completos_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="adesivo_pop_completos_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">2</td><td class="description">Adesivo POP U&M retirados - desmobilização</td><td class="status-cell"><select name="adesivo_pop_retirados_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="adesivo_pop_retirados_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">3</td><td class="description">Faixas refletivas Detran</td><td class="status-cell"><select name="faixas_refletivas_detran_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="faixas_refletivas_detran_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">4</td><td class="description">Faixas refletivas U&M</td><td class="status-cell"><select name="faixas_refletivas_um_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="faixas_refletivas_um_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">5</td><td class="description">Cones</td><td class="status-cell"><select name="cones_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="cones_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">6</td><td class="description">Escadas de acesso</td><td class="status-cell"><select name="escadas_acesso_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="escadas_acesso_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">7</td><td class="description">Armários Implemento</td><td class="status-cell"><select name="armarios_implemento_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="armarios_implemento_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">8</td><td class="description">Dispositivo de Aterramento</td><td class="status-cell"><select name="dispositivo_aterramento_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="dispositivo_aterramento_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">9</td><td class="description">Estado geral do implemento</td><td class="status-cell"><select name="estado_geral_implemento_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="estado_geral_implemento_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">10</td><td class="description">Estado geral do chassi</td><td class="status-cell"><select name="estado_geral_chassi_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="estado_geral_chassi_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">11</td><td class="description">Guarda-corpo</td><td class="status-cell"><select name="guarda_corpo_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="guarda_corpo_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">12</td><td class="description">Guarda-ciclista</td><td class="status-cell"><select name="guarda_ciclista_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="guarda_ciclista_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">13</td><td class="description">Para-choques dianteiro e traseiro</td><td class="status-cell"><select name="para_choques_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="para_choques_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">14</td><td class="description">Placas Onu</td><td class="status-cell"><select name="placas_onu_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="placas_onu_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">15</td><td class="description">Placas Detran (Dianteira/ Traseira)</td><td class="status-cell"><select name="placas_detran_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="placas_detran_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">16</td><td class="description">Mangueiras fixadas e em bom estado</td><td class="status-cell"><select name="mangueiras_fixadas_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="mangueiras_fixadas_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">17</td><td class="description">Tanque de Arla com tampa de proteção</td><td class="status-cell"><select name="tanque_arla_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="tanque_arla_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">18</td><td class="description">Tanque de combustível com tampa de proteção</td><td class="status-cell"><select name="tanque_combustivel_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="tanque_combustivel_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">19</td><td class="description">Verificação dos níveis (água/óleos)</td><td class="status-cell"><select name="verificacao_niveis_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="verificacao_niveis_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">20</td><td class="description">Sistema de lubrificação automático</td><td class="status-cell"><select name="sistema_lubrificacao_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="sistema_lubrificacao_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">21</td><td class="description">Sistema de supressão de incêndio</td><td class="status-cell"><select name="sistema_supressao_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="sistema_supressao_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">22</td><td class="description">Enclinômetro caçamba rodoviário</td><td class="status-cell"><select name="enclinometro_cacamba_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="enclinometro_cacamba_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                </tbody>
+            </table>
+            <div class="observation-box">
+                <div class="observation-label">Observações/ Justificativa para os itens preenchidos como NOK:</div>
+                <div class="observation-fields">
+                    <div class="observation-field">
+                        <label>Envio</label>
+                        <textarea name="obs_estrutura_externa_envio" rows="3"></textarea>
+                    </div>
+                    <div class="observation-field">
+                        <label>Recebimento</label>
+                        <textarea name="obs_estrutura_externa_recebimento" rows="3"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção Estado do Implemento -->
+        <div class="section">
+            <div class="section-header">
+                <h2>Estado do Implemento</h2>
+            </div>
+            <div class="instruction-text">
+                Atentar para o preenchimento das colunas
+            </div>
+            <table class="equipment-table">
+                <thead>
+                    <tr>
+                        <th class="item-col">Item</th>
+                        <th class="description-col">Descrição</th>
+                        <th class="status-col">Envio<br>OK/ NOK/ N/A</th>
+                        <th class="status-col">Recebimento<br>OK/ NOK/ N/A</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td class="item-number">1</td><td class="description">Bascula (Preencher aba - Bascula com as informações necessarias conforme solicitado)</td><td class="status-cell"><select name="baceola_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="baceola_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">2</td><td class="description">Concha, pontas e adaptadores</td><td class="status-cell"><select name="cacamba_pontao_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="cacamba_pontao_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">3</td><td class="description">Lamina e bordas</td><td class="status-cell"><select name="lamina_bordel_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="lamina_bordel_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">4</td><td class="description">Pipa, canhão d'água, rabo de pavão (Aspersor traseiro Bico de pato)</td><td class="status-cell"><select name="ripas_canifao_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="ripas_canifao_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">5</td><td class="description">Escarificador</td><td class="status-cell"><select name="escarificador_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="escarificador_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">6</td><td class="description">Caçamba Rodoviário</td><td class="status-cell"><select name="equipto_rodoviario_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="equipto_rodoviario_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">7</td><td class="description">Combolo</td><td class="status-cell"><select name="combolo_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="combolo_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">8</td><td class="description">Diesel</td><td class="status-cell"><select name="diesel_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="diesel_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">9</td><td class="description">Oficina (Motosolda/ Gerador/ Compressor)</td><td class="status-cell"><select name="oficina_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="oficina_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">10</td><td class="description">Munk (Controles/ Bateria/ Patolas/ Abertura de Hastes)</td><td class="status-cell"><select name="mink_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="mink_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">11</td><td class="description">Tire Handler/ Garfo/ Torre</td><td class="status-cell"><select name="tire_handler_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="tire_handler_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                </tbody>
+            </table>
+            <div class="observation-box">
+                <div class="observation-label">Observações/ Justificativa para os itens preenchidos como NOK:</div>
+                <div class="observation-fields">
+                    <div class="observation-field">
+                        <label>Envio</label>
+                        <textarea name="obs_estado_implemento_envio" rows="3"></textarea>
+                    </div>
+                    <div class="observation-field">
+                        <label>Recebimento</label>
+                        <textarea name="obs_estado_implemento_recebimento" rows="3"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção Pneus -->
+        <div class="section">
+            <div class="section-header">
+                <h2>Pneus</h2>
+            </div>
+            <div class="instruction-text">
+                Atentar para o preenchimento das colunas
+            </div>
+            <table class="equipment-table">
+                <thead>
+                    <tr>
+                        <th class="item-col">Item</th>
+                        <th class="description-col">Descrição</th>
+                        <th class="status-col">Envio<br>OK/ NOK/ N/A</th>
+                        <th class="status-col">Recebimento<br>OK/ NOK/ N/A</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td class="item-number">1</td><td class="description">Em condições de uso?</td><td class="status-cell"><select name="desgaste_dianteiro_direito_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="desgaste_dianteiro_direito_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">2</td><td class="description">Pneus estão calibrados?</td><td class="status-cell"><select name="desgaste_dianteiro_esquerdo_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="desgaste_dianteiro_esquerdo_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">3</td><td class="description">Perfurações</td><td class="status-cell"><select name="desgaste_traseiro_direito_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="desgaste_traseiro_direito_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">4</td><td class="description">Picoteamento</td><td class="status-cell"><select name="desgaste_traseiro_esquerdo_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="desgaste_traseiro_esquerdo_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">5</td><td class="description">Desgaste irregular</td><td class="status-cell"><select name="pneu_corte_lateral_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="pneu_corte_lateral_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">6</td><td class="description">Desgaste total</td><td class="status-cell"><select name="pneu_pressao_inadequada_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="pneu_pressao_inadequada_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">7</td><td class="description">Rodas</td><td class="status-cell"><select name="pneu_desgaste_excessivo_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="pneu_desgaste_excessivo_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">8</td><td class="description">Estepe</td><td class="status-cell"><select name="roda_trinca_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="roda_trinca_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">9</td><td class="description">Transporte será realizado com os pneus vazios?</td><td class="status-cell"><select name="parafusos_roda_soltos_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="parafusos_roda_soltos_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                </tbody>
+            </table>
+            <div class="observation-box">
+                <div class="observation-label">Observações/ Justificativa para os itens preenchidos como NOK:</div>
+                <div class="observation-fields">
+                    <div class="observation-field">
+                        <label>Envio</label>
+                        <textarea name="obs_pneus_envio" rows="3"></textarea>
+                    </div>
+                    <div class="observation-field">
+                        <label>Recebimento</label>
+                        <textarea name="obs_pneus_recebimento" rows="3"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção Estado do Chassi -->
+        <div class="section">
+            <div class="section-header">
+                <h2>Estado do Chassi</h2>
+            </div>
+            <div class="instruction-text">
+                Atentar para o preenchimento das colunas
+            </div>
+            <table class="equipment-table">
+                <thead>
+                    <tr>
+                        <th class="item-col">Item</th>
+                        <th class="description-col">Descrição</th>
+                        <th class="status-col">Envio<br>OK/ NOK/ N/A</th>
+                        <th class="status-col">Recebimento<br>OK/ NOK/ N/A</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td class="item-number">1</td><td class="description">Trincas na fixação do implementos?</td><td class="status-cell"><select name="trincas_fixacao_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="trincas_fixacao_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">2</td><td class="description">Trincas na estrutura do chassi?</td><td class="status-cell"><select name="trincas_estrutura_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="trincas_estrutura_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">3</td><td class="description">Trincas no tanque comboio, diesel e pipa?</td><td class="status-cell"><select name="trincas_tanque_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="trincas_tanque_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                </tbody>
+            </table>
+            <div class="observation-box">
+                <div class="observation-label">Observações/ Justificativa para os itens preenchidos como NOK:</div>
+                <div class="observation-fields">
+                    <div class="observation-field">
+                        <label>Envio</label>
+                        <textarea name="obs_estado_chassi_envio" rows="3"></textarea>
+                    </div>
+                    <div class="observation-field">
+                        <label>Recebimento</label>
+                        <textarea name="obs_estado_chassi_recebimento" rows="3"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção Sistema de Direção -->
+        <div class="section">
+            <div class="section-header">
+                <h2>Sistema de Direção</h2>
+            </div>
+            <div class="instruction-text">
+                Atentar para o preenchimento das colunas
+            </div>
+            <table class="equipment-table">
+                <thead>
+                    <tr>
+                        <th class="item-col">Item</th>
+                        <th class="description-col">Descrição</th>
+                        <th class="status-col">Envio<br>SIM / NÃO</th>
+                        <th class="status-col">Recebimento<br>SIM / NÃO</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td class="item-number">1</td><td class="description">Direção com folga</td><td class="status-cell"><select name="direcao_folga_envio"><option value="">-</option><option value="Sim">Sim</option><option value="Nao">Não</option></select></td><td class="status-cell"><select name="direcao_folga_recebimento"><option value="">-</option><option value="Sim">Sim</option><option value="Nao">Não</option></select></td></tr>
+                    <tr><td class="item-number">2</td><td class="description">Setor e barra da direção com folga</td><td class="status-cell"><select name="setor_barra_direcao_envio"><option value="">-</option><option value="Sim">Sim</option><option value="Nao">Não</option></select></td><td class="status-cell"><select name="setor_barra_direcao_recebimento"><option value="">-</option><option value="Sim">Sim</option><option value="Nao">Não</option></select></td></tr>
+                    <tr><td class="item-number">3</td><td class="description">Bomba de direção com vazamento</td><td class="status-cell"><select name="bomba_direcao_vazamento_envio"><option value="">-</option><option value="Sim">Sim</option><option value="Nao">Não</option></select></td><td class="status-cell"><select name="bomba_direcao_vazamento_recebimento"><option value="">-</option><option value="Sim">Sim</option><option value="Nao">Não</option></select></td></tr>
+                </tbody>
+            </table>
+            <div class="observation-box">
+                <div class="observation-label">Observações/ Justificativa para os itens preenchidos como SIM:</div>
+                <div class="observation-fields">
+                    <div class="observation-field">
+                        <label>Envio</label>
+                        <textarea name="obs_sistema_direcao_envio" rows="3"></textarea>
+                    </div>
+                    <div class="observation-field">
+                        <label>Recebimento</label>
+                        <textarea name="obs_sistema_direcao_recebimento" rows="3"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção Sistema de Freio -->
+        <div class="section">
+            <div class="section-header">
+                <h2>Sistema de Freio</h2>
+            </div>
+            <div class="instruction-text">
+                Atentar para o preenchimento das colunas
+            </div>
+            <table class="equipment-table">
+                <thead>
+                    <tr>
+                        <th class="item-col">Item</th>
+                        <th class="description-col">Descrição</th>
+                        <th class="status-col">Envio<br>OK/ NOK/ N/A</th>
+                        <th class="status-col">Recebimento<br>OK/ NOK/ N/A</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td class="item-number">1</td><td class="description">Estacionário</td><td class="status-cell"><select name="fluido_freios_vazamento_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="fluido_freios_vazamento_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">2</td><td class="description">Freio retarder</td><td class="status-cell"><select name="pastilhas_sapatas_desgastadas_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="pastilhas_sapatas_desgastadas_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">3</td><td class="description">Lonas, discos, pastilhas de freio e tambor</td><td class="status-cell"><select name="disco_tambor_desgaste_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="disco_tambor_desgaste_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">4</td><td class="description">Válvula</td><td class="status-cell"><select name="cilindro_vazamento_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="cilindro_vazamento_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">5</td><td class="description">Catracas de freio</td><td class="status-cell"><select name="pedal_curso_excessivo_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="pedal_curso_excessivo_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">6</td><td class="description">Cuicas de freio</td><td class="status-cell"><select name="freio_estacionamento_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="freio_estacionamento_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                </tbody>
+            </table>
+            <div class="observation-box">
+                <div class="observation-label">Observações/ Justificativa para os itens preenchidos como NOK:</div>
+                <div class="observation-fields">
+                    <div class="observation-field">
+                        <label>Envio</label>
+                        <textarea name="obs_sistema_freio_envio" rows="3"></textarea>
+                    </div>
+                    <div class="observation-field">
+                        <label>Recebimento</label>
+                        <textarea name="obs_sistema_freio_recebimento" rows="3"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção Sistema de Suspensão -->
+        <div class="section">
+            <div class="section-header">
+                <h2>Sistema de Suspensão</h2>
+            </div>
+            <div class="instruction-text">
+                Atentar para o preenchimento das colunas
+            </div>
+            <table class="equipment-table">
+                <thead>
+                    <tr>
+                        <th class="item-col">Item</th>
+                        <th class="description-col">Descrição</th>
+                        <th class="status-col">Envio<br>OK/ NOK/ N/A</th>
+                        <th class="status-col">Recebimento<br>OK/ NOK/ N/A</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td class="item-number">1</td><td class="description">Amortecedor</td><td class="status-cell"><select name="amortecedor_vazamento_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="amortecedor_vazamento_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">2</td><td class="description">Eixos do caminhão</td><td class="status-cell"><select name="mola_quebrada_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="mola_quebrada_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">3</td><td class="description">Molas</td><td class="status-cell"><select name="bucha_coxim_deteriorado_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="bucha_coxim_deteriorado_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">4</td><td class="description">Grampos</td><td class="status-cell"><select name="barra_estabilizadora_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="barra_estabilizadora_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                </tbody>
+            </table>
+            <div class="observation-box">
+                <div class="observation-label">Observações/ Justificativa para os itens preenchidos como NOK:</div>
+                <div class="observation-fields">
+                    <div class="observation-field">
+                        <label>Envio</label>
+                        <textarea name="obs_sistema_suspensao_envio" rows="3"></textarea>
+                    </div>
+                    <div class="observation-field">
+                        <label>Recebimento</label>
+                        <textarea name="obs_sistema_suspensao_recebimento" rows="3"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção Sistema Trem de Força Mecânico/Elétrico -->
+        <div class="section">
+            <div class="section-header">
+                <h2>Sistema Trem de Força Mecânico/Elétrico</h2>
+            </div>
+            <div class="instruction-text">
+                Atentar para o preenchimento das colunas
+            </div>
+            <table class="equipment-table">
+                <thead>
+                    <tr>
+                        <th class="item-col">Item</th>
+                        <th class="description-col">Descrição</th>
+                        <th class="status-col">Envio<br>OK/ NOK/ N/A</th>
+                        <th class="status-col">Recebimento<br>OK/ NOK/ N/A</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td class="item-number">1</td><td class="description">Comando final</td><td class="status-cell"><select name="comando_final_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="comando_final_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">2</td><td class="description">Conversor de torque</td><td class="status-cell"><select name="conversor_torque_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="conversor_torque_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">3</td><td class="description">Cubos de roda</td><td class="status-cell"><select name="cubos_roda_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="cubos_roda_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">4</td><td class="description">Diferencial</td><td class="status-cell"><select name="diferencial_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="diferencial_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">5</td><td class="description">Transmissão</td><td class="status-cell"><select name="transmissao_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="transmissao_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">6</td><td class="description">Alternador principal</td><td class="status-cell"><select name="alternador_principal_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="alternador_principal_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">7</td><td class="description">Roda motorizada</td><td class="status-cell"><select name="roda_motorizada_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="roda_motorizada_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">8</td><td class="description">Motor elétrico</td><td class="status-cell"><select name="motor_eletrico_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="motor_eletrico_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">9</td><td class="description">Barra V</td><td class="status-cell"><select name="barra_v_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="barra_v_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">10</td><td class="description">Caixa de Marcha</td><td class="status-cell"><select name="caixa_marcha_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="caixa_marcha_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">11</td><td class="description">Cardan/ Cruzeta</td><td class="status-cell"><select name="carda_cruzeta_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="carda_cruzeta_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">12</td><td class="description">Embreagem</td><td class="status-cell"><select name="embreagem_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="embreagem_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                </tbody>
+            </table>
+            <div class="observation-box">
+                <div class="observation-label">Observações/ Justificativa para os itens preenchidos como NOK:</div>
+                <div class="observation-fields">
+                    <div class="observation-field">
+                        <label>Envio</label>
+                        <textarea name="obs_sistema_trem_forca_envio" rows="3"></textarea>
+                    </div>
+                    <div class="observation-field">
+                        <label>Recebimento</label>
+                        <textarea name="obs_sistema_trem_forca_recebimento" rows="3"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção Sistema de Motor -->
+        <div class="section">
+            <div class="section-header">
+                <h2>Sistema de Motor</h2>
+            </div>
+            <div class="instruction-text">
+                Atentar para o preenchimento das colunas
+            </div>
+            <table class="equipment-table">
+                <thead>
+                    <tr>
+                        <th class="item-col">Item</th>
+                        <th class="description-col">Descrição</th>
+                        <th class="status-col">Envio<br>OK/ NOK/ N/A</th>
+                        <th class="status-col">Recebimento<br>OK/ NOK/ N/A</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td class="item-number">1</td><td class="description">Motor diesel</td><td class="status-cell"><select name="motor_diesel_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="motor_diesel_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">2</td><td class="description">Tubulação de descarga</td><td class="status-cell"><select name="tubulacao_descarga_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="tubulacao_descarga_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">3</td><td class="description">Bomba d'água</td><td class="status-cell"><select name="bomba_agua_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="bomba_agua_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">4</td><td class="description">Correia</td><td class="status-cell"><select name="correia_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="correia_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">5</td><td class="description">Manta térmica</td><td class="status-cell"><select name="manta_termica_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="manta_termica_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">6</td><td class="description">Turbina</td><td class="status-cell"><select name="turbina_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="turbina_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">7</td><td class="description">Número de série do motor <em>Informe:</em> <input type="text" name="numero_serie_motor" style="border: none; border-bottom: 1px solid #000; background: transparent; width: 200px; margin-left: 10px;"></td><td class="status-cell"><select name="numero_serie_motor_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="numero_serie_motor_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                </tbody>
+            </table>
+            <div class="observation-box">
+                <div class="observation-label">Observações/ Justificativa para os itens preenchidos como NOK:</div>
+                <div class="observation-fields">
+                    <div class="observation-field">
+                        <label>Envio</label>
+                        <textarea name="obs_sistema_motor_envio" rows="3"></textarea>
+                    </div>
+                    <div class="observation-field">
+                        <label>Recebimento</label>
+                        <textarea name="obs_sistema_motor_recebimento" rows="3"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção Sistema de Refrigeração -->
+        <div class="section">
+            <div class="section-header">
+                <h2>Sistema de Refrigeração</h2>
+            </div>
+            <div class="instruction-text">
+                Atentar para o preenchimento das colunas
+            </div>
+            <table class="equipment-table">
+                <thead>
+                    <tr>
+                        <th class="item-col">Item</th>
+                        <th class="description-col">Descrição</th>
+                        <th class="status-col">Envio<br>OK/ NOK/ N/A</th>
+                        <th class="status-col">Recebimento<br>OK/ NOK/ N/A</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td class="item-number">1</td><td class="description">Radiador</td><td class="status-cell"><select name="radiador_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="radiador_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">2</td><td class="description">Hélice do radiador</td><td class="status-cell"><select name="helice_radiador_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="helice_radiador_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">3</td><td class="description">Mangueiras</td><td class="status-cell"><select name="mangueiras_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="mangueiras_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                </tbody>
+            </table>
+            <div class="observation-box">
+                <div class="observation-label">Observações/ Justificativa para os itens preenchidos como NOK:</div>
+                <div class="observation-fields">
+                    <div class="observation-field">
+                        <label>Envio</label>
+                        <textarea name="obs_sistema_refrigeracao_envio" rows="3"></textarea>
+                    </div>
+                    <div class="observation-field">
+                        <label>Recebimento</label>
+                        <textarea name="obs_sistema_refrigeracao_recebimento" rows="3"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção Sistema Elétrico -->
+        <div class="section">
+            <div class="section-header">
+                <h2>Sistema Elétrico</h2>
+            </div>
+            <div class="instruction-text">
+                Atentar para o preenchimento das colunas
+            </div>
+            <table class="equipment-table">
+                <thead>
+                    <tr>
+                        <th class="item-col">Item</th>
+                        <th class="description-col">Descrição</th>
+                        <th class="status-col">Envio<br>OK/ NOK/ N/A</th>
+                        <th class="status-col">Recebimento<br>OK/ NOK/ N/A</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td class="item-number">1</td><td class="description">Bateria(s)</td><td class="status-cell"><select name="baterias_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="baterias_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">2</td><td class="description">Bandeirola</td><td class="status-cell"><select name="bandeirola_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="bandeirola_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">3</td><td class="description">Buzina</td><td class="status-cell"><select name="buzina_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="buzina_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">4</td><td class="description">Caixa de bateria</td><td class="status-cell"><select name="caixa_bateria_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="caixa_bateria_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">5</td><td class="description">Caixa de bloqueio</td><td class="status-cell"><select name="caixa_bloqueio_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="caixa_bloqueio_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">6</td><td class="description">Câmera marcha a ré</td><td class="status-cell"><select name="camera_marcha_re_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="camera_marcha_re_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">7</td><td class="description">Câmera guarda corpo</td><td class="status-cell"><select name="camera_guarda_corpo_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="camera_guarda_corpo_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">8</td><td class="description">Chave geral</td><td class="status-cell"><select name="chave_geral_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="chave_geral_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">9</td><td class="description">Display da câmera</td><td class="status-cell"><select name="display_camera_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="display_camera_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">10</td><td class="description">Faróis e setas LD/LE dianteiros</td><td class="status-cell"><select name="farois_setas_dianteiros_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="farois_setas_dianteiros_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">11</td><td class="description">Faróis e setas LD/LE traseiros</td><td class="status-cell"><select name="farois_setas_traseiros_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="farois_setas_traseiros_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">12</td><td class="description">Giroled</td><td class="status-cell"><select name="giroled_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="giroled_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">13</td><td class="description">Iluminação interna da cabine</td><td class="status-cell"><select name="iluminacao_interna_cabine_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="iluminacao_interna_cabine_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">14</td><td class="description">Luzes auxiliares de manobras</td><td class="status-cell"><select name="luzes_auxiliares_manobras_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="luzes_auxiliares_manobras_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">15</td><td class="description">Luz e alerta sonoro marcha à ré</td><td class="status-cell"><select name="luz_alerta_sonoro_marcha_re_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="luz_alerta_sonoro_marcha_re_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">16</td><td class="description">Motor de partida</td><td class="status-cell"><select name="motor_partida_envio"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="motor_partida_recebimento"><option value="">-</option><option value="OK">OK</option><option value="NOK">NOK</option><option value="N/A">N/A</option></select></td></tr>
+                </tbody>
+            </table>
+            <div class="observation-box">
+                <div class="observation-label">Observações/ Justificativa para os itens preenchidos como NOK:</div>
+                <div class="observation-fields">
+                    <div class="observation-field">
+                        <label>Envio</label>
+                        <textarea name="obs_sistema_eletrico_envio" rows="3"></textarea>
+                    </div>
+                    <div class="observation-field">
+                        <label>Recebimento</label>
+                        <textarea name="obs_sistema_eletrico_recebimento" rows="3"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção Vazamentos -->
+        <div class="section">
+            <div class="section-header">
+                <h2>Vazamentos</h2>
+            </div>
+            <div class="instruction-text">
+                Atentar para o preenchimento das colunas
+            </div>
+            <table class="equipment-table">
+                <thead>
+                    <tr>
+                        <th class="item-col">Item</th>
+                        <th class="description-col">Descrição</th>
+                        <th class="status-col">Envio<br>SIM/ NÃO</th>
+                        <th class="status-col">Recebimento<br>SIM/ NÃO</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td class="item-number">1</td><td class="description">Apresenta vazamento hidráulico</td><td class="status-cell"><select name="vazamento_hidraulico_envio"><option value="">-</option><option value="SIM">SIM</option><option value="NÃO">NÃO</option></select></td><td class="status-cell"><select name="vazamento_hidraulico_recebimento"><option value="">-</option><option value="SIM">SIM</option><option value="NÃO">NÃO</option></select></td></tr>
+                    <tr><td class="item-number">2</td><td class="description">Apresenta vazamento óleo do motor</td><td class="status-cell"><select name="vazamento_oleo_motor_envio"><option value="">-</option><option value="SIM">SIM</option><option value="NÃO">NÃO</option></select></td><td class="status-cell"><select name="vazamento_oleo_motor_recebimento"><option value="">-</option><option value="SIM">SIM</option><option value="NÃO">NÃO</option></select></td></tr>
+                    <tr><td class="item-number">3</td><td class="description">Apresenta vazamento transmissão</td><td class="status-cell"><select name="vazamento_transmissao_envio"><option value="">-</option><option value="SIM">SIM</option><option value="NÃO">NÃO</option></select></td><td class="status-cell"><select name="vazamento_transmissao_recebimento"><option value="">-</option><option value="SIM">SIM</option><option value="NÃO">NÃO</option></select></td></tr>
+                    <tr><td class="item-number">4</td><td class="description">Apresenta vazamento líquido arrefecedor</td><td class="status-cell"><select name="vazamento_liquido_arrefecedor_envio"><option value="">-</option><option value="SIM">SIM</option><option value="NÃO">NÃO</option></select></td><td class="status-cell"><select name="vazamento_liquido_arrefecedor_recebimento"><option value="">-</option><option value="SIM">SIM</option><option value="NÃO">NÃO</option></select></td></tr>
+                    <tr><td class="item-number">5</td><td class="description">Apresenta vazamento na linha de diesel do implemento</td><td class="status-cell"><select name="vazamento_linha_diesel_implemento_envio"><option value="">-</option><option value="SIM">SIM</option><option value="NÃO">NÃO</option></select></td><td class="status-cell"><select name="vazamento_linha_diesel_implemento_recebimento"><option value="">-</option><option value="SIM">SIM</option><option value="NÃO">NÃO</option></select></td></tr>
+                    <tr><td class="item-number">6</td><td class="description">Apresenta vazamento nos cubos de roda, cilindros, juntas, comandos, etc</td><td class="status-cell"><select name="vazamento_cubos_roda_envio"><option value="">-</option><option value="SIM">SIM</option><option value="NÃO">NÃO</option></select></td><td class="status-cell"><select name="vazamento_cubos_roda_recebimento"><option value="">-</option><option value="SIM">SIM</option><option value="NÃO">NÃO</option></select></td></tr>
+                    <tr><td class="item-number">7</td><td class="description">Apresenta vazamento na linha de abastecimento dos fluidos do implemento</td><td class="status-cell"><select name="vazamento_linha_abastecimento_fluidos_envio"><option value="">-</option><option value="SIM">SIM</option><option value="NÃO">NÃO</option></select></td><td class="status-cell"><select name="vazamento_linha_abastecimento_fluidos_recebimento"><option value="">-</option><option value="SIM">SIM</option><option value="NÃO">NÃO</option></select></td></tr>
+                    <tr><td class="item-number">8</td><td class="description">Apresenta vazamento na linha do ar do caminhão</td><td class="status-cell"><select name="vazamento_linha_ar_caminhao_envio"><option value="">-</option><option value="SIM">SIM</option><option value="NÃO">NÃO</option></select></td><td class="status-cell"><select name="vazamento_linha_ar_caminhao_recebimento"><option value="">-</option><option value="SIM">SIM</option><option value="NÃO">NÃO</option></select></td></tr>
+                    <tr><td class="item-number">9</td><td class="description">Apresenta vazamento nas bombas</td><td class="status-cell"><select name="vazamento_bombas_envio"><option value="">-</option><option value="SIM">SIM</option><option value="NÃO">NÃO</option></select></td><td class="status-cell"><select name="vazamento_bombas_recebimento"><option value="">-</option><option value="SIM">SIM</option><option value="NÃO">NÃO</option></select></td></tr>
+                    <tr><td class="item-number">10</td><td class="description">Apresenta vazamento nas mangueiras</td><td class="status-cell"><select name="vazamento_mangueiras_envio"><option value="">-</option><option value="SIM">SIM</option><option value="NÃO">NÃO</option></select></td><td class="status-cell"><select name="vazamento_mangueiras_recebimento"><option value="">-</option><option value="SIM">SIM</option><option value="NÃO">NÃO</option></select></td></tr>
+                </tbody>
+            </table>
+            <div class="observation-box">
+                <div class="observation-label">Observações/ Justificativa para os itens preenchidos como SIM:</div>
+                <div class="observation-fields">
+                    <div class="observation-field">
+                        <label>Envio</label>
+                        <textarea name="obs_vazamentos_envio" rows="3"></textarea>
+                    </div>
+                    <div class="observation-field">
+                        <label>Recebimento</label>
+                        <textarea name="obs_vazamentos_recebimento" rows="3"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção Níveis de Fluidos -->
+        <div class="section">
+            <div class="section-header">
+                <h2>Níveis de Fluidos</h2>
+            </div>
+            <div class="instruction-text">
+                Para os itens adotados como parcial, informar a quantidade de lubrificantes disponíveis em seu compartimento.<br>
+                Atentar para o preenchimento das colunas
+            </div>
+            <table class="equipment-table">
+                <thead>
+                    <tr>
+                        <th class="item-col">Item</th>
+                        <th class="description-col">Descrição</th>
+                        <th class="status-col">Envio<br>Completo/ Parcial/ Drenado/ N/A</th>
+                        <th class="status-col">Recebimento<br>Completo/ Parcial/ Drenado/ N/A</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td class="item-number">1</td><td class="description">Óleo combustível</td><td class="status-cell"><select name="oleo_combustivel_envio"><option value="">-</option><option value="Completo">Completo</option><option value="Parcial">Parcial</option><option value="Drenado">Drenado</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="oleo_combustivel_recebimento"><option value="">-</option><option value="Completo">Completo</option><option value="Parcial">Parcial</option><option value="Drenado">Drenado</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">2</td><td class="description">Óleo hidráulico</td><td class="status-cell"><select name="oleo_hidraulico_envio"><option value="">-</option><option value="Completo">Completo</option><option value="Parcial">Parcial</option><option value="Drenado">Drenado</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="oleo_hidraulico_recebimento"><option value="">-</option><option value="Completo">Completo</option><option value="Parcial">Parcial</option><option value="Drenado">Drenado</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">3</td><td class="description">Óleo hidráulico do martelo (perfuratriz)</td><td class="status-cell"><select name="oleo_hidraulico_martelo_envio"><option value="">-</option><option value="Completo">Completo</option><option value="Parcial">Parcial</option><option value="Drenado">Drenado</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="oleo_hidraulico_martelo_recebimento"><option value="">-</option><option value="Completo">Completo</option><option value="Parcial">Parcial</option><option value="Drenado">Drenado</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">4</td><td class="description">Óleo da transmissão</td><td class="status-cell"><select name="oleo_transmissao_envio"><option value="">-</option><option value="Completo">Completo</option><option value="Parcial">Parcial</option><option value="Drenado">Drenado</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="oleo_transmissao_recebimento"><option value="">-</option><option value="Completo">Completo</option><option value="Parcial">Parcial</option><option value="Drenado">Drenado</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">5</td><td class="description">Óleo do motor</td><td class="status-cell"><select name="oleo_motor_envio"><option value="">-</option><option value="Completo">Completo</option><option value="Parcial">Parcial</option><option value="Drenado">Drenado</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="oleo_motor_recebimento"><option value="">-</option><option value="Completo">Completo</option><option value="Parcial">Parcial</option><option value="Drenado">Drenado</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">6</td><td class="description">Óleo de freio</td><td class="status-cell"><select name="oleo_freio_envio"><option value="">-</option><option value="Completo">Completo</option><option value="Parcial">Parcial</option><option value="Drenado">Drenado</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="oleo_freio_recebimento"><option value="">-</option><option value="Completo">Completo</option><option value="Parcial">Parcial</option><option value="Drenado">Drenado</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">7</td><td class="description">Óleo de direção</td><td class="status-cell"><select name="oleo_direcao_envio"><option value="">-</option><option value="Completo">Completo</option><option value="Parcial">Parcial</option><option value="Drenado">Drenado</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="oleo_direcao_recebimento"><option value="">-</option><option value="Completo">Completo</option><option value="Parcial">Parcial</option><option value="Drenado">Drenado</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">8</td><td class="description">Graxa reservatório</td><td class="status-cell"><select name="graxa_reservatorio_envio"><option value="">-</option><option value="Completo">Completo</option><option value="Parcial">Parcial</option><option value="Drenado">Drenado</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="graxa_reservatorio_recebimento"><option value="">-</option><option value="Completo">Completo</option><option value="Parcial">Parcial</option><option value="Drenado">Drenado</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">9</td><td class="description">Óleo de engrenagem (roda motorizada)</td><td class="status-cell"><select name="oleo_engrenagem_roda_motorizada_envio"><option value="">-</option><option value="Completo">Completo</option><option value="Parcial">Parcial</option><option value="Drenado">Drenado</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="oleo_engrenagem_roda_motorizada_recebimento"><option value="">-</option><option value="Completo">Completo</option><option value="Parcial">Parcial</option><option value="Drenado">Drenado</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">10</td><td class="description">Óleo de engrenagem (cubo dianteiro, comando final e redutor de giro)</td><td class="status-cell"><select name="oleo_engrenagem_cubo_dianteiro_envio"><option value="">-</option><option value="Completo">Completo</option><option value="Parcial">Parcial</option><option value="Drenado">Drenado</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="oleo_engrenagem_cubo_dianteiro_recebimento"><option value="">-</option><option value="Completo">Completo</option><option value="Parcial">Parcial</option><option value="Drenado">Drenado</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">11</td><td class="description">Óleo de engrenagem (caixa de giro, comando dianteiro, comando traseiro, diferencial, eixo planetário e transmissão )</td><td class="status-cell"><select name="oleo_engrenagem_caixa_giro_envio"><option value="">-</option><option value="Completo">Completo</option><option value="Parcial">Parcial</option><option value="Drenado">Drenado</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="oleo_engrenagem_caixa_giro_recebimento"><option value="">-</option><option value="Completo">Completo</option><option value="Parcial">Parcial</option><option value="Drenado">Drenado</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">12</td><td class="description">Óleo do PTO</td><td class="status-cell"><select name="oleo_pto_envio"><option value="">-</option><option value="Completo">Completo</option><option value="Parcial">Parcial</option><option value="Drenado">Drenado</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="oleo_pto_recebimento"><option value="">-</option><option value="Completo">Completo</option><option value="Parcial">Parcial</option><option value="Drenado">Drenado</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">13</td><td class="description">Líquido Arrefecimento - XLC</td><td class="status-cell"><select name="liquido_arrefecimento_xlc_envio"><option value="">-</option><option value="Completo">Completo</option><option value="Parcial">Parcial</option><option value="Drenado">Drenado</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="liquido_arrefecimento_xlc_recebimento"><option value="">-</option><option value="Completo">Completo</option><option value="Parcial">Parcial</option><option value="Drenado">Drenado</option><option value="N/A">N/A</option></select></td></tr>
+                    <tr><td class="item-number">14</td><td class="description">Equipamento lubrificado</td><td class="status-cell"><select name="equipamento_lubrificado_envio"><option value="">-</option><option value="Completo">Completo</option><option value="Parcial">Parcial</option><option value="Drenado">Drenado</option><option value="N/A">N/A</option></select></td><td class="status-cell"><select name="equipamento_lubrificado_recebimento"><option value="">-</option><option value="Completo">Completo</option><option value="Parcial">Parcial</option><option value="Drenado">Drenado</option><option value="N/A">N/A</option></select></td></tr>
+                </tbody>
+            </table>
+            <div class="observation-box">
+                <div class="observation-label">Observações/ Justificativa para os itens preenchidos como Parcial:</div>
+                <div class="observation-fields">
+                    <div class="observation-field">
+                        <label>Envio</label>
+                        <textarea name="obs_niveis_fluidos_envio" rows="3"></textarea>
+                    </div>
+                    <div class="observation-field">
+                        <label>Recebimento</label>
+                        <textarea name="obs_niveis_fluidos_recebimento" rows="3"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção Manutenção -->
+        <div class="section">
+            <div class="section-header">
+                <h2>Manutenção</h2>
+            </div>
+            <div class="instruction-text">
+                Atentar para o preenchimento das colunas
+            </div>
+            <table class="equipment-table">
+                <thead>
+                    <tr>
+                        <th class="item-col">Item</th>
+                        <th class="description-col">Descrição</th>
+                        <th class="status-col">Envio<br>SIM/ NÃO</th>
+                        <th class="status-col">Recebimento<br>SIM/ NÃO</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="item-number">1</td>
+                        <td class="description">Foi realizado algum reparo no equipamento antes do envio?<br><span style="font-style: italic; font-size: 0.9em;">Se sim, indicar os reparos realizados abaixo</span></td>
+                        <td class="status-cell"><select name="reparo_equipamento_envio"><option value="">-</option><option value="SIM">SIM</option><option value="NÃO">NÃO</option></select></td>
+                        <td class="status-cell"><select name="reparo_equipamento_recebimento"><option value="">-</option><option value="SIM">SIM</option><option value="NÃO">NÃO</option></select></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="observation-box">
+                <div class="observation-label">Observações/ Justificativa para os itens preenchidos como SIM:</div>
+                <div class="observation-fields">
+                    <div class="observation-field">
+                        <label>Envio</label>
+                        <textarea name="obs_manutencao_envio" rows="3"></textarea>
+                    </div>
+                    <div class="observation-field">
+                        <label>Recebimento</label>
+                        <textarea name="obs_manutencao_recebimento" rows="3"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção Informações Adicionais -->
+        <div class="section">
+            <div class="section-header">
+                <h2>Informações Adicionais</h2>
+            </div>
+            <div class="instruction-text">
+                Atentar para o preenchimento das colunas
+            </div>
+            <table class="equipment-table">
+                <thead>
+                    <tr>
+                        <th class="item-col">Item</th>
+                        <th class="description-col">Descrição</th>
+                        <th class="status-col">Envio</th>
+                        <th class="status-col">Recebimento</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="item-number">2</td>
+                        <td class="description">Equipamento estava parado? Se sim a quanto tempo? <span style="margin-left: 20px;">Informe:</span></td>
+                        <td class="status-cell"><input type="text" name="equipamento_parado_tempo_envio" style="width: 100%;"></td>
+                        <td class="status-cell"><input type="text" name="equipamento_parado_tempo_recebimento" style="width: 100%;"></td>
+                    </tr>
+                    <tr>
+                        <td class="item-number">3</td>
+                        <td class="description">Fotos foram anexadas? (ABA - Fotos)</td>
+                        <td class="status-cell"><select name="fotos_anexadas_envio"><option value="">-</option><option value="SIM">SIM</option><option value="NÃO">NÃO</option></select></td>
+                        <td class="status-cell"><select name="fotos_anexadas_recebimento"><option value="">-</option><option value="SIM">SIM</option><option value="NÃO">NÃO</option></select></td>
+                    </tr>
+                    <tr>
+                        <td class="item-number">4</td>
+                        <td class="description">Equipamento possui histórico de análise de fluidos? (ABA - Análise de Fluidos)</td>
+                        <td class="status-cell"><select name="historico_analise_fluidos_envio"><option value="">-</option><option value="SIM">SIM</option><option value="NÃO">NÃO</option></select></td>
+                        <td class="status-cell"><select name="historico_analise_fluidos_recebimento"><option value="">-</option><option value="SIM">SIM</option><option value="NÃO">NÃO</option></select></td>
+                    </tr>
+                    <tr>
+                        <td class="item-number">5</td>
+                        <td class="description">Equipamento possui algum Backlog?</td>
+                        <td class="status-cell"><select name="equipamento_possui_backlog_envio"><option value="">-</option><option value="SIM">SIM</option><option value="NÃO">NÃO</option></select></td>
+                        <td class="status-cell"><select name="equipamento_possui_backlog_recebimento"><option value="">-</option><option value="SIM">SIM</option><option value="NÃO">NÃO</option></select></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Seção Backlog -->
+        <div class="section">
+            <div class="section-header">
+                <h2>Backlog</h2>
+            </div>
+            <div class="instruction-text">
+                Adicionar todas as pendências existentes no equipamento, manutenções necessárias e divergências identificadas no campo Estrutura do Equipamento. Se houver substituição de alguma peça informada como pendência e já tenha sido solicitada, indicar a RC gerada.
+            </div>
+            <div class="observation-box">
+                <div class="observation-fields">
+                    <div class="observation-field">
+                        <label>Envio</label>
+                        <textarea name="backlog_envio" rows="4" placeholder="Descrever pendências e necessidades identificadas no envio"></textarea>
+                    </div>
+                    <div class="observation-field">
+                        <label>Recebimento</label>
+                        <textarea name="backlog_recebimento" rows="4" placeholder="Descrever pendências e necessidades identificadas no recebimento"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção Preenchimento FORMs e Docs -->
+        <div class="section">
+            <div class="section-header">
+                <h2>Preenchimento FORMs e Docs</h2>
+            </div>
+            <div class="instruction-text">
+                Atentar para o preenchimento das colunas
+            </div>
+            <table class="equipment-table">
+                <thead>
+                    <tr>
+                        <th class="item-col">Item</th>
+                        <th class="description-col">Descrição</th>
+                        <th class="status-col">Envio<br>SIM/ NÃO / N/A</th>
+                        <th class="status-col">Recebimento<br>SIM/ NÃO/ N/A</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="item-number">1</td>
+                        <td class="description">Foi preenchido o FORM_321 - Inspeção e Medição de Material Rodante?</td>
+                        <td class="status-cell"><select name="form_321_preenchido_envio"><option value="">-</option><option value="SIM">SIM</option><option value="NÃO">NÃO</option><option value="N/A">N/A</option></select></td>
+                        <td class="status-cell"><select name="form_321_preenchido_recebimento"><option value="">-</option><option value="SIM">SIM</option><option value="NÃO">NÃO</option><option value="N/A">N/A</option></select></td>
+                    </tr>
+                    <tr>
+                        <td class="item-number">2</td>
+                        <td class="description">Foi preenchido o FORM_283 - Formulário de Teste e Ajuste?<br><span style="font-style: italic; font-size: 0.9em;">Caso preenchidos, os formulários devem ser preenchidos e anexados à transferência do equipamento em conjunto com o presente FORM_384</span></td>
+                        <td class="status-cell"><select name="form_283_preenchido_envio"><option value="">-</option><option value="SIM">SIM</option><option value="NÃO">NÃO</option><option value="N/A">N/A</option></select></td>
+                        <td class="status-cell"><select name="form_283_preenchido_recebimento"><option value="">-</option><option value="SIM">SIM</option><option value="NÃO">NÃO</option><option value="N/A">N/A</option></select></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Seção Assinaturas -->
+        <div class="section">
+            <div class="section-header">
+                <h2>Assinaturas</h2>
+            </div>
+            <div class="instruction-text">
+                Responsáveis pela transferência do equipamento
+            </div>
+            <div class="signatures-grid">
+                <div class="signature-block">
+                    <!-- manter campo de nome em hidden para submissão, mas oculto visualmente -->
+                    <input type="hidden" name="tecnico_envio">
+                    <div class="signature-line"></div>
+                    <div class="signature-caption">Técnico Responsável pelo Envio</div>
+                </div>
+                <div class="signature-block">
+                    <input type="hidden" name="tecnico_recebimento">
+                    <div class="signature-line"></div>
+                    <div class="signature-caption">Técnico Responsável pelo Recebimento</div>
+                </div>
+            </div>
+
+            <!-- Assinatura digital (pads) -->
+            <div class="digital-signature-section">
+                <div class="section-header" style="margin-top:10px;">
+                    <h2>Assinatura Digital</h2>
+                </div>
+                <div class="digital-signature-grid">
+                    <div class="signature-pad">
+                        <label>Assinatura Envio</label>
+                        <canvas id="signatureEnvio" width="600" height="150"></canvas>
+                        <div class="signature-controls">
+                            <button type="button" class="btn btn-secondary" onclick="clearSignature('signatureEnvio')">Limpar</button>
+                            <button type="button" class="btn btn-primary" onclick="saveSignature('signatureEnvio')">Salvar</button>
+                        </div>
+                        <input type="hidden" id="hiddenSignatureEnvio" name="tecnico_envio_assinatura">
+                    </div>
+                    <div class="signature-pad">
+                        <label>Assinatura Recebimento</label>
+                        <canvas id="signatureRecebimento" width="600" height="150"></canvas>
+                        <div class="signature-controls">
+                            <button type="button" class="btn btn-secondary" onclick="clearSignature('signatureRecebimento')">Limpar</button>
+                            <button type="button" class="btn btn-primary" onclick="saveSignature('signatureRecebimento')">Salvar</button>
+                        </div>
+                        <input type="hidden" id="hiddenSignatureRecebimento" name="tecnico_recebimento_assinatura">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção Fotos do Equipamento -->
+        <div class="section">
+            <div class="section-header">
+                <h2>📸 Fotos do Equipamento</h2>
+            </div>
+            <div class="instruction-text">
+                Anexar fotos dos 4 lados do equipamento
+            </div>
+            <div class="photo-grid">
+                <div class="photo-upload-area">
+                    <label for="foto_frente" class="photo-label">
+                        <div class="photo-icon">📷</div>
+                        <div class="photo-text">Foto Frontal</div>
+                        <input type="file" id="foto_frente" name="foto_frente" accept="image/*" class="photo-input">
+                        <div class="photo-preview" id="preview_frente"></div>
+                    </label>
+                </div>
+                <div class="photo-upload-area">
+                    <label for="foto_traseira" class="photo-label">
+                        <div class="photo-icon">📷</div>
+                        <div class="photo-text">Foto Traseira</div>
+                        <input type="file" id="foto_traseira" name="foto_traseira" accept="image/*" class="photo-input">
+                        <div class="photo-preview" id="preview_traseira"></div>
+                    </label>
+                </div>
+                <div class="photo-upload-area">
+                    <label for="foto_esquerda" class="photo-label">
+                        <div class="photo-icon">📷</div>
+                        <div class="photo-text">Lado Esquerdo</div>
+                        <input type="file" id="foto_esquerda" name="foto_esquerda" accept="image/*" class="photo-input">
+                        <div class="photo-preview" id="preview_esquerda"></div>
+                    </label>
+                </div>
+                <div class="photo-upload-area">
+                    <label for="foto_direita" class="photo-label">
+                        <div class="photo-icon">📷</div>
+                        <div class="photo-text">Lado Direito</div>
+                        <input type="file" id="foto_direita" name="foto_direita" accept="image/*" class="photo-input">
+                        <div class="photo-preview" id="preview_direita"></div>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <!-- Botões de Ação -->
+        <div class="action-buttons">
+            <button type="button" id="previewBtn" class="btn btn-secondary">
+                👁️ Visualizar Dados
+            </button>
+            <button type="button" id="exportBtn" class="btn btn-primary">
+                📊 Exportar para Excel
+            </button>
+            <button type="reset" class="btn btn-warning">
+                🔄 Limpar Formulário
+            </button>
+        </div>
+
+        <!-- Modal de Prévia -->
+        <div id="previewModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>📋 Prévia dos Dados - FORM 384</h2>
+                    <span class="close">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div id="previewContent"></div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="closePreview()">Fechar</button>
+                    <button class="btn btn-primary" onclick="exportToExcel()">Exportar para Excel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
