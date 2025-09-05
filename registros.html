@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Registros - Controle de Atividades Lavador e Pintura</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="logo.svg" type="image/svg+xml">
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand">
+      <div class="logo">U&M</div>
+      <div class="titles">
+        <h1>📊 Registros - Controle de Atividades Lavador e Pintura</h1>
+        <p class="subtitle">Gerenciamento completo de registros e dados operacionais</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div class="theme-toggle">
+        <button id="btnToggleTheme" class="ghost" title="Alternar modo claro/escuro" onclick="toggleThemeLocal()">
+          <span id="themeIcon">🌙</span>
+        </button>
+      </div>
+      <div class="navigation">
+        <button id="btnVoltar" class="ghost">🏠 Início</button>
+        <button id="btnDashboard" class="primary">📈 Dashboard</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section id="registros-content">
+      <div class="page-header">
+        <div class="page-info">
+          <h2>📋 Lista de Registros</h2>
+          <p class="page-description">Visualize, edite e gerencie todos os registros do sistema. Use os filtros para encontrar informações específicas.</p>
+        </div>
+        <div class="quick-stats">
+          <div class="stat-item">
+            <span class="stat-label">Total de registros</span>
+            <span id="totalRegistros" class="stat-value">0</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Filtrados</span>
+            <span id="registrosFiltrados" class="stat-value">0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <div class="filters">
+          <div class="filter-group">
+            <label class="filter-label">🔍 Buscar</label>
+            <input id="busca" type="search" placeholder="Buscar por descrição, OS, setor..." />
+          </div>
+          <div class="filter-group">
+            <label class="filter-label">📊 Status</label>
+            <select id="filtroStatus">
+              <option value="">Todos os status</option>
+              <option value="PROGRAMADO">📅 Programado</option>
+              <option value="EM PROCESSO">⚡ Em processo</option>
+              <option value="FINALIZADO">✅ Finalizado</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label class="filter-label">👤 Responsável</label>
+            <select id="filtroResponsavel">
+              <option value="">Todos os responsáveis</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label class="filter-label">🏗️ Frente</label>
+            <select id="filtroFrente">
+              <option value="">Todas as frentes</option>
+            </select>
+          </div>
+          <div class="filter-group date-range">
+            <label class="filter-label">📅 Período</label>
+            <div class="date-inputs">
+              <input id="filtroDe" type="date" title="Data inicial">
+              <span class="date-separator">até</span>
+              <input id="filtroAte" type="date" title="Data final">
+            </div>
+          </div>
+          <button id="btnLimparFiltros" class="ghost clear-filters">🗑️ Limpar filtros</button>
+        </div>
+        <div class="actions">
+          <button id="btnNovo" class="primary action-btn">➕ Novo registro</button>
+          <button id="btnConfig" class="ghost action-btn">⚙️ Configurações</button>
+          <button id="btnExportar" class="ghost action-btn">📊 Exportar Excel</button>
+          <input id="importarArquivo" type="file" accept=".json" hidden />
+          <button id="btnImportar" class="ghost action-btn">📁 Importar JSON</button>
+          <button id="btnLimparTudo" class="danger action-btn">🗑️ Limpar tudo</button>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table id="tabela">
+          <thead>
+            <tr>
+              <th>Descrição</th>
+              <th>TAG </th>
+              <th>Tipo de Serviço</th>
+              <th>Paletes</th>
+              <th>Observações</th>
+              <th>OS</th>
+              <th>Setor Solicitante</th>
+              <th>Status</th>
+              <th>Responsável</th>
+              <th>Frente</th>
+              <th>Fim</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal de Configurações -->
+  <dialog id="modalConfig">
+    <form method="dialog">
+      <header class="modal-header">
+        <h3>Configurações - Frentes e Responsáveis</h3>
+        <button class="icon" value="cancel" aria-label="Fechar">✕</button>
+      </header>
+      <div class="modal-body">
+        <p>Edite as frentes padrão (usadas em filtros e no formulário).</p>
+        <div class="grid-2">
+          <div>
+            <label>Frente 1 <input id="frente1" type="text" placeholder="EVA"></label>
+            <label>Frente 2 <input id="frente2" type="text" placeholder="EUDO CONCEIÇÃO"></label>
+            <label>Frente 3 <input id="frente3" type="text" placeholder="VICENTE DE PAULA"></label>
+            <label>Frente 4 <input id="frente4" type="text" placeholder="FRENTE 4"></label>
+            <label>Frente 5 <input id="frente5" type="text" placeholder="FRENTE 5"></label>
+            <label>Frente 6 <input id="frente6" type="text" placeholder="FRENTE 6"></label>
+            <label>Frente 7 <input id="frente7" type="text" placeholder="FRENTE 7"></label>
+            <label>Frente 8 <input id="frente8" type="text" placeholder="FRENTE 8"></label>
+            <label>Frente 9 <input id="frente9" type="text" placeholder="FRENTE 9"></label>
+            <button id="btnSalvarFrentes" class="primary">Salvar frentes</button>
+          </div>
+          <div>
+            <label>Novo responsável <input id="novoResponsavel" type="text" placeholder="Nome"></label>
+            <button id="btnAddResp" class="ghost">Adicionar responsável</button>
+            <ul id="listaResponsaveis" class="tags"></ul>
+          </div>
+        </div>
+      </div>
+      <footer class="modal-footer">
+        <button class="ghost" value="cancel">Fechar</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <dialog id="modal">
+    <form method="dialog" id="formRegistro">
+      <header class="modal-header">
+        <h3 id="modalTitulo">Novo registro</h3>
+        <button class="icon" value="cancel" aria-label="Fechar">✕</button>
+      </header>
+      <div class="modal-body grid-3">
+        <label>Descrição
+          <input required name="descricao" type="text" maxlength="120" />
+        </label>
+        <label>TAG
+          <input name="tag1" type="text" maxlength="20" />
+        </label>
+        <label>Tipo de Serviço
+          <select name="tag2" required>
+            <option value="">Selecione...</option>
+            <option value="LAVAGEM">LAVAGEM</option>
+            <option value="PINTURA">PINTURA</option>
+          </select>
+        </label>
+        <label>Paletes
+          <input name="paletes" type="number" min="0" step="1" />
+        </label>
+        <label>Observações
+          <input name="observacoes" type="text" maxlength="160" />
+        </label>
+        <label>OS
+          <input name="os" type="text" maxlength="20" />
+        </label>
+        <label>Setor Solicitante
+          <input name="setor" type="text" maxlength="40" />
+        </label>
+        <label>Status
+          <select name="status" required>
+            <option>PROGRAMADO</option>
+            <option>EM PROCESSO</option>
+            <option>FINALIZADO</option>
+          </select>
+        </label>
+        <label>Responsável
+          <input list="respList" name="responsavel" type="text" />
+          <datalist id="respList"></datalist>
+        </label>
+        <label>Frente
+          <input list="frenteList" name="frente" type="text" />
+          <datalist id="frenteList"></datalist>
+        </label>
+        <label>Fim
+          <input name="fim" type="date" />
+        </label>
+      </div>
+      <footer class="modal-footer">
+        <span id="registroFeedback" style="display:none;color:green;margin-right:16px;font-weight:bold;"></span>
+        <button class="ghost" value="cancel">Cancelar</button>
+        <button class="primary" id="btnSalvarRegistro" value="default" disabled>Salvar</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <footer class="footer">
+    <small>Feito em HTML, CSS e JavaScript • Dados armazenados no seu navegador (localStorage)</small>
+  </footer>
+
+  <script>
+    // Teste básico
+    console.log('Registros.html carregado!');
+    
+    // Funções locais para o tema
+    function toggleThemeLocal() {
+      console.log('🎨 Toggle theme local chamado');
+      
+      if (typeof toggleTheme === 'function') {
+        console.log('✅ Usando função original do app.js');
+        toggleTheme();
+      } else {
+        console.log('⚠️ Usando função local');
+        const root = document.documentElement;
+        const themeIcon = document.getElementById('themeIcon');
+        const btnTheme = document.getElementById('btnToggleTheme');
+        
+        if (root.classList.contains('light-theme')) {
+          // Mudar para escuro
+          root.classList.remove('light-theme');
+          if (themeIcon) themeIcon.textContent = '🌙';
+          if (btnTheme) btnTheme.title = 'Alternar para modo claro';
+          localStorage.setItem('controle-lavador-theme', 'dark');
+          console.log('🌙 Mudou para modo escuro');
+        } else {
+          // Mudar para claro
+          root.classList.add('light-theme');
+          if (themeIcon) themeIcon.textContent = '☀️';
+          if (btnTheme) btnTheme.title = 'Alternar para modo escuro';
+          localStorage.setItem('controle-lavador-theme', 'light');
+          console.log('☀️ Mudou para modo claro');
+        }
+      }
+    }
+    
+    function initThemeLocal() {
+      const savedTheme = localStorage.getItem('controle-lavador-theme') || 'dark';
+      const root = document.documentElement;
+      const themeIcon = document.getElementById('themeIcon');
+      const btnTheme = document.getElementById('btnToggleTheme');
+      
+      if (savedTheme === 'light') {
+        root.classList.add('light-theme');
+        if (themeIcon) themeIcon.textContent = '☀️';
+        if (btnTheme) btnTheme.title = 'Alternar para modo escuro';
+      } else {
+        root.classList.remove('light-theme');
+        if (themeIcon) themeIcon.textContent = '🌙';
+        if (btnTheme) btnTheme.title = 'Alternar para modo claro';
+      }
+      
+      console.log('🎨 Tema inicializado (local):', savedTheme);
+    }
+    
+    // Função de teste para o tema
+    window.testarTemaRegistros = function() {
+      console.log('🧪 Testando tema nos registros...');
+      toggleThemeLocal();
+    };
+    
+    // Função para atualizar os contadores
+    function atualizarContadores() {
+      const totalElement = document.getElementById('totalRegistros');
+      const filtradosElement = document.getElementById('registrosFiltrados');
+      
+      if (totalElement && typeof state !== 'undefined') {
+        const total = state.dados ? state.dados.length : 0;
+        totalElement.textContent = total;
+        
+        // Contar registros visíveis na tabela
+        const linhasVisiveis = document.querySelectorAll('#tabela tbody tr').length;
+        if (filtradosElement) {
+          filtradosElement.textContent = linhasVisiveis;
+        }
+      }
+    }
+    
+    // Função personalizada para renderizar tabela com contadores
+    function renderTableWithCounters() {
+      if (typeof renderTable === 'function') {
+        renderTable();
+        // Aguardar um pouco para a tabela ser renderizada
+        setTimeout(atualizarContadores, 100);
+      }
+    }
+    
+    // Inicializar apenas a área de registros
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('DOM registros carregado!');
+      
+      // Inicializar tema primeiro
+      initThemeLocal();
+      
+      // Configurar botões de navegação
+      const btnVoltar = document.getElementById('btnVoltar');
+      const btnDashboard = document.getElementById('btnDashboard');
+      
+      if (btnVoltar) {
+        btnVoltar.addEventListener('click', () => {
+          window.location.href = 'index.html';
+        });
+      }
+      
+      if (btnDashboard) {
+        btnDashboard.addEventListener('click', () => {
+          window.location.href = 'dashboard.html';
+        });
+      }
+      
+      // Verificar se as funções existem antes de chamar
+      if(typeof initTheme === 'function') {
+        console.log('🎨 Reinicializando com app.js...');
+        initTheme();
+      }
+      if(typeof preencherListasAuxiliares === 'function') preencherListasAuxiliares();
+      if(typeof bindToolbar === 'function') bindToolbar();
+      if(typeof bindConfig === 'function') bindConfig();
+      if(typeof bindModal === 'function') bindModal();
+      if(typeof renderTable === 'function') {
+        renderTable();
+        // Atualizar contadores após renderizar
+        setTimeout(atualizarContadores, 200);
+      }
+      
+      // Interceptar eventos de filtro para atualizar contadores
+      ['busca','filtroStatus','filtroResponsavel','filtroFrente','filtroDe','filtroAte'].forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+          element.addEventListener('input', () => {
+            setTimeout(atualizarContadores, 100);
+          });
+        }
+      });
+      
+      // Interceptar botão de limpar filtros
+      const btnLimpar = document.getElementById('btnLimparFiltros');
+      if (btnLimpar) {
+        btnLimpar.addEventListener('click', () => {
+          setTimeout(atualizarContadores, 100);
+        });
+      }
+      
+      // Função para modal de configurações
+      const configModal = document.getElementById('modalConfig');
+      const btnConfig = document.getElementById('btnConfig');
+      
+      if (btnConfig && configModal) {
+        btnConfig.onclick = () => {
+          console.log('Abrindo modal de config');
+          configModal.showModal();
+        };
+      }
+    });
+  </script>
+</body>
+</html>
