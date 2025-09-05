@@ -7,6 +7,8 @@
   --primary:#1d7d42;
   --primary-2:#165f32;
   --danger:#ab2b2b;
+  --warning:#d97706;
+  --warning-2:#b45309;
   --border:#1c2622;
   --shadow: 0 6px 24px rgba(0,0,0,.35);
 }
@@ -20,6 +22,8 @@
   --primary:#1d7d42;
   --primary-2:#165f32;
   --danger:#ab2b2b;
+  --warning:#d97706;
+  --warning-2:#b45309;
   --border:#e1e7e3;
   --shadow: 0 6px 24px rgba(0,0,0,.08);
 }
@@ -62,6 +66,69 @@ h1,h2,h3{margin:0 0 .5rem}
 .navigation button{padding:8px 12px;border-radius:10px;font-size:0.9rem}
 .consumo-box{display:flex;gap:8px;align-items:center;background:var(--panel);padding:8px 10px;border-radius:12px;border:1px solid var(--border)}
 .consumo-box input{width:140px;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:6px 8px;border-radius:10px}
+
+/* Sync Status Indicator */
+.sync-status {
+  display: flex;
+  align-items: center;
+}
+
+.sync-indicator {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: help;
+  transition: all 0.3s ease;
+}
+
+.sync-indicator.online {
+  background: #10b981;
+  color: white;
+  border-color: #059669;
+}
+
+.sync-indicator.syncing {
+  background: #f59e0b;
+  color: white;
+  border-color: #d97706;
+}
+
+.sync-indicator.offline {
+  background: #6b7280;
+  color: white;
+  border-color: #4b5563;
+}
+
+.sync-indicator.error {
+  background: #ef4444;
+  color: white;
+  border-color: #dc2626;
+}
+
+.sync-icon {
+  animation: sync-pulse 2s infinite;
+}
+
+.sync-indicator.syncing .sync-icon {
+  animation: sync-spin 1s linear infinite;
+}
+
+@keyframes sync-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes sync-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 .tabbar{display:flex;gap:8px}
 /* Welcome screen and modules */
 .welcome-screen {
@@ -414,6 +481,23 @@ main{padding:18px}
   background: linear-gradient(135deg, #8b2424, var(--danger));
   transform: translateY(-1px);
   box-shadow: 0 6px 20px rgba(171, 43, 43, 0.3);
+}
+
+.warning{
+  background: linear-gradient(135deg, var(--warning), var(--warning-2));
+  border: none;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.warning:hover {
+  background: linear-gradient(135deg, var(--warning-2), var(--warning));
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(217, 119, 6, 0.3);
 }
 
 /* Enhanced table */

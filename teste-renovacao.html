@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste - Renovação de Dados</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app">
+        <header class="app-header">
+            <div class="brand">
+                <div class="logo"></div>
+                <h1>Teste - Renovação de Dados</h1>
+            </div>
+        </header>
+        
+        <main class="container">
+            <div class="actions" style="padding: 20px;">
+                <button id="btnRenovarDados" class="warning action-btn">🔄 Renovar dados</button>
+                <button id="btnLimparTudo" class="danger action-btn">🗑️ Limpar tudo</button>
+                <div style="margin-top: 20px;">
+                    <p>Total de registros: <span id="totalRegistros">0</span></p>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script>
+        // Simular dados de teste
+        window.state = {
+            dados: [
+                {id: '1', descricao: 'Teste 1', status: 'PROGRAMADO', fim: '2025-09-10'},
+                {id: '2', descricao: 'Teste 2', status: 'FINALIZADO', fim: '2025-08-01'},
+                {id: '3', descricao: 'Teste 3', status: 'EM PROCESSO', fim: '2025-09-15'},
+                {id: '4', descricao: 'Teste 4', status: 'FINALIZADO', fim: '2025-07-01'}
+            ],
+            meta: {consumo: 100}
+        };
+        
+        function updateTotal() {
+            document.getElementById('totalRegistros').textContent = state.dados.length;
+        }
+        
+        // Simular as funções necessárias
+        window.save = (dados, meta) => {
+            console.log('Salvando:', dados, meta);
+        };
+        
+        window.renderTable = () => {
+            console.log('Renderizando tabela...');
+            updateTotal();
+        };
+        
+        window.renderDashboard = () => {
+            console.log('Renderizando dashboard...');
+        };
+        
+        updateTotal();
+    </script>
+    <script src="app.js"></script>
+    
+    <script>
+        // Inicializar apenas as funções necessárias para o teste
+        document.addEventListener('DOMContentLoaded', () => {
+            const btnRenovar = document.getElementById('btnRenovarDados');
+            const btnLimpar = document.getElementById('btnLimparTudo');
+            
+            if (btnRenovar) {
+                btnRenovar.onclick = () => {
+                    console.log('Clicou em renovar');
+                    if (typeof abrirModalRenovacao === 'function') {
+                        abrirModalRenovacao();
+                    } else {
+                        console.error('Função abrirModalRenovacao não encontrada');
+                    }
+                };
+            }
+            
+            if (btnLimpar) {
+                btnLimpar.onclick = () => {
+                    if (confirm('Tem certeza? Todos os dados serão perdidos!')) {
+                        state.dados = [];
+                        updateTotal();
+                    }
+                };
+            }
+        });
+    </script>
+</body>
+</html>

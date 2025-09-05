@@ -8,6 +8,7 @@
   <link rel="icon" href="logo.svg" type="image/svg+xml">
   <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script defer src="jsonbin-config.js"></script>
   <script defer src="app.js"></script>
 </head>
 <body>
@@ -29,6 +30,12 @@
         <button id="btnToggleTheme" class="ghost" title="Alternar modo claro/escuro" onclick="toggleThemeLocal()">
           <span id="themeIcon">🌙</span>
         </button>
+      </div>
+      <div class="sync-status">
+        <span id="syncIndicator" class="sync-indicator" title="Status de sincronização">
+          <span class="sync-icon">📱</span>
+          <span class="sync-text">Local</span>
+        </span>
       </div>
       <div class="navigation">
         <button id="btnVoltar" class="ghost">🏠 Início</button>

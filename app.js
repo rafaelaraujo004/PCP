@@ -2,7 +2,32 @@ const LS_KEY='controleLavador_dados_v1';const LS_META='controleLavador_meta_v1';
 const $=(s,c=document)=>c.querySelector(s);const $$=(s,c=document)=>Array.from(c.querySelectorAll(s));
 const uid=()=>Math.random().toString(36).slice(2,10);
 const load=()=>({dados:JSON.parse(localStorage.getItem(LS_KEY)||'[]'),meta:JSON.parse(localStorage.getItem(LS_META)||'{}')});
-const save=(d,m)=>{localStorage.setItem(LS_KEY,JSON.stringify(d));localStorage.setItem(LS_META,JSON.stringify(m));};
+
+// Função de salvamento atualizada para incluir JSONBin
+const save = async (d, m) => {
+  console.log('💾 Função save chamada com:', { dados: d?.length || 0, meta: Object.keys(m || {}).length });
+  
+  // Sempre salvar no localStorage primeiro (funciona offline)
+  localStorage.setItem(LS_KEY, JSON.stringify(d));
+  localStorage.setItem(LS_META, JSON.stringify(m));
+  
+  // Tentar salvar na nuvem se disponível
+  if (window.jsonBinManager) {
+    console.log('🌐 JSONBin Manager encontrado, tentando salvar na nuvem...');
+    try {
+      await window.jsonBinManager.saveData(d, m);
+    } catch (error) {
+      console.error('❌ Erro ao salvar na nuvem:', error);
+    }
+  } else {
+    console.log('⚠️ JSONBin Manager não encontrado');
+  }
+  
+  // Atualizar indicador de status
+  if (typeof updateSyncIndicator === 'function') {
+    updateSyncIndicator();
+  }
+};
 const fmtData=v=>{
   if(!v) return '';
   
@@ -63,17 +88,16 @@ const criarDataLocal = (dateStr) => {
 let state=load();
 if(!state.meta.frentes){state.meta.frentes=["EVA","EUDO CONCEIÇÃO","VICENTE DE PAULA","FRENTE 4"];}
 if(!state.meta.responsaveis){state.meta.responsaveis=["DOMINGOS","EUDO CONCEIÇÃO","VICENTE DE PAULA"];}
-if(state.dados.length===0){
-  state.dados=[
-    {id:uid(),descricao:"COMANDO FINAL",tag1:"CF08",tag2:"LAVAGEM",paletes:2,observacoes:"DEMANDA ENGENHARIA",os:"4562410",setor:"COMANDO FINAL",status:"FINALIZADO",responsavel:"DOMINGOS",frente:"EVA",fim:"2025-04-03"},
-    {id:uid(),descricao:"ROLAMENTO PRINCIPAL",tag1:"RP60",tag2:"PINTURA",paletes:1,observacoes:"-",os:"",setor:"EQUIPAMENTOS",status:"FINALIZADO",responsavel:"DOMINGOS",frente:"EVA",fim:"2025-04-10"},
-    {id:uid(),descricao:"COMANDO FINAL",tag1:"CF77",tag2:"LAVAGEM",paletes:3,observacoes:"-",os:"4676911",setor:"EQUIPAMENTOS",status:"FINALIZADO",responsavel:"DOMINGOS",frente:"EVA",fim:"2025-04-10"},
-    {id:uid(),descricao:"TRANSMISSÃO 777F",tag1:"RD19",tag2:"PINTURA",paletes:2,observacoes:"-",os:"4541158",setor:"EQUIPAMENTOS",status:"FINALIZADO",responsavel:"DOMINGOS",frente:"EUDO CONCEIÇÃO",fim:"2025-04-10"},
-    {id:uid(),descricao:"CILINDRO DE ELEVAÇÃO D11",tag1:"CL13",tag2:"LAVAGEM",paletes:1,observacoes:"-",os:"",setor:"EQUIPAMENTOS",status:"EM PROCESSO",responsavel:"EUDO CONCEIÇÃO",frente:"EVA",fim:"2025-04-11"},
-    {id:uid(),descricao:"CONCHA EX-2500",tag1:"CN18",tag2:"PINTURA",paletes:1,observacoes:"-",os:"",setor:"COMPONENTES",status:"FINALIZADO",responsavel:"EUDO CONCEIÇÃO",frente:"VICENTE DE PAULA",fim:"2025-04-16"}
-  ];
-  state.meta.consumo=4656855; save(state.dados,state.meta);
+// Dados de exemplo removidos - sistema iniciará vazio
+
+// Limpar dados antigos na primeira execução após atualização
+if(localStorage.getItem('dados_limpos') !== 'true') {
+  state.dados = [];
+  state.meta.consumo = 0;
+  localStorage.setItem('dados_limpos', 'true');
+  save(state.dados, state.meta);
 }
+
 function initTabs(){
   // Nova funcionalidade para abrir em ambientes separados
   $$('.tab').forEach(b=>b.addEventListener('click',(e)=>{
@@ -127,10 +151,11 @@ function abrirModal(reg=null){
   $('#btnSalvarRegistro').disabled=true;
   dlg.showModal();
 }
+
 function renderTable(){const tb=$('#tabela tbody'); tb.innerHTML=''; const q=($('#busca').value||'').toLowerCase(); const fs=$('#filtroStatus').value; const fr=$('#filtroResponsavel').value; const ff=$('#filtroFrente').value; const dDe=$('#filtroDe').value?criarDataLocal($('#filtroDe').value):null; const dAte=$('#filtroAte').value?criarDataLocal($('#filtroAte').value):null; const rows=state.dados.filter(r=>{const txt=[r.descricao,r.os,r.setor,r.responsavel,r.frente,r.tag1,r.tag2].join(' ').toLowerCase(); if(q && !txt.includes(q)) return false; if(fs && r.status!==fs) return false; if(fr && r.responsavel!==fr) return false; if(ff && r.frente!==ff) return false; if(dDe||dAte){const d=r.fim?criarDataLocal(r.fim):null; if(dDe && (!d||d<dDe)) return false; if(dAte && (!d||d>dAte)) return false;} return true;}); rows.sort((a,b)=>(a.fim||'').localeCompare(b.fim||'')); for(const r of rows){const tr=document.createElement('tr'); const sClass=r.status==='FINALIZADO'?'finalizado':(r.status==='EM PROCESSO'?'processo':'programado'); tr.innerHTML=`
       <td>${r.descricao||''}</td><td>${r.tag1||''}</td><td>${r.tag2||''}</td><td>${r.paletes??''}</td><td>${r.observacoes||''}</td><td>${r.os||''}</td><td>${r.setor||''}</td><td><span class="badge ${sClass}">${r.status||''}</span></td><td>${r.responsavel||''}</td><td>${r.frente||''}</td><td>${fmtData(r.fim)||''}</td>
       <td><div class="row-actions"><button class="ghost" data-act="edit" data-id="${r.id}">Editar</button><button class="danger" data-act="del" data-id="${r.id}">Excluir</button></div></td>`; tb.appendChild(tr);} tb.querySelectorAll('button[data-act="edit"]').forEach(b=>b.onclick=()=>{const reg=state.dados.find(x=>x.id===b.dataset.id); abrirModal(reg);}); tb.querySelectorAll('button[data-act="del"]').forEach(b=>b.onclick=()=>{const id=b.dataset.id; if(confirm('Excluir este registro?')){state.dados=state.dados.filter(x=>x.id!==id); save(state.dados,state.meta); renderTable(); renderDashboard();}});}
-function renderDashboard(){const total=state.dados.length; const programado=state.dados.filter(r=>r.status==='PROGRAMADO').length; const processo=state.dados.filter(r=>r.status==='EM PROCESSO').length; const finalizado=state.dados.filter(r=>r.status==='FINALIZADO').length; $('#kpiTotal').textContent=total; $('#kpiProgramado').textContent=programado; $('#kpiEmProcesso').textContent=processo; $('#kpiFinalizado').textContent=finalizado; $('#kpiConsumo').textContent=state.meta.consumo||0; window._charts ||= {}; for(const k in window._charts){window._charts[k].destroy();}
+function renderDashboard(){const total=state.dados.length; const programado=state.dados.filter(r=>r.status==='PROGRAMADO').length; const processo=state.dados.filter(r=>r.status==='EM PROCESSO').length; const finalizado=state.dados.filter(r=>r.status==='FINALIZADO').length; $('#kpiTotal').textContent=total; $('#kpiProgramado').textContent=programado; $('#kpiEmProcesso').textContent=processo; $('#kpiFinalizado').textContent=finalizado; $('#kpiConsumo').textContent=state.meta.consumo||0; window._charts = window._charts || {}; for(const k in window._charts){window._charts[k].destroy();}
   
   // Gráfico de barras por status
   const statusData = [programado,processo,finalizado];
@@ -518,7 +543,7 @@ function bindToolbar(){
       }
     };
   }
-  
+
   // Event listeners para os filtros
   const busca = $('#busca');
   const filtroStatus = $('#filtroStatus');
@@ -732,23 +757,30 @@ function bindModal(){
 
 function boot(){
   console.log('🚀 Starting application...'); // Debug
-  initTheme();
-  initConsumo();
-  
-  // Verificar se estamos na página principal
-  const welcomeScreen = document.querySelector('.welcome-screen');
-  if(welcomeScreen) {
-    console.log('✅ Welcome screen found - usando navegação inline'); // Debug
-    // Não precisa fazer nada, os botões usam onclick inline
-  } else {
-    console.log('📄 Not on welcome screen, loading full functionality'); // Debug
-    initTabs();
-    preencherListasAuxiliares();
-    bindToolbar();
-    bindConfig();
-    bindModal();
-    renderTable();
-    renderDashboard();
+  try {
+    initTheme();
+    initConsumo();
+    
+    // Inicializar sincronização na nuvem
+    setTimeout(initCloudSync, 2000); // Aguardar 2 segundos para garantir que JSONBin carregou
+    
+    // Verificar se estamos na página principal
+    const welcomeScreen = document.querySelector('.welcome-screen');
+    if(welcomeScreen) {
+      console.log('✅ Welcome screen found - usando navegação inline'); // Debug
+      // Não precisa fazer nada, os botões usam onclick inline
+    } else {
+      console.log('📄 Not on welcome screen, loading full functionality'); // Debug
+      initTabs();
+      preencherListasAuxiliares();
+      bindToolbar();
+      bindConfig();
+      bindModal();
+      renderTable();
+      renderDashboard();
+    }
+  } catch (error) {
+    console.error('Erro ao inicializar aplicação:', error);
   }
 }
 
@@ -792,5 +824,67 @@ function applyTheme(theme){
     if(btnToggle) btnToggle.title = 'Alternar para modo claro';
   }
 }
+
+// Função para atualizar o indicador de sincronização
+function updateSyncIndicator() {
+  const indicator = $('#syncIndicator');
+  if (!indicator) return;
+  
+  const icon = indicator.querySelector('.sync-icon');
+  const text = indicator.querySelector('.sync-text');
+  
+  if (!window.jsonBinManager) {
+    // JSONBin não carregado
+    indicator.className = 'sync-indicator offline';
+    if (icon) icon.textContent = '📱';
+    if (text) text.textContent = 'Local';
+    indicator.title = 'Dados salvos apenas localmente';
+    return;
+  }
+  
+  const status = window.jsonBinManager.getStatus();
+  
+  if (!status.configured) {
+    // Não configurado
+    indicator.className = 'sync-indicator offline';
+    if (icon) icon.textContent = '⚙️';
+    if (text) text.textContent = 'Config';
+    indicator.title = 'JSONBin não configurado - dados apenas locais';
+  } else if (!status.online) {
+    // Offline
+    indicator.className = 'sync-indicator offline';
+    if (icon) icon.textContent = '📵';
+    if (text) text.textContent = 'Offline';
+    indicator.title = 'Sem conexão - dados salvos localmente';
+  } else if (status.ready) {
+    // Online e pronto
+    indicator.className = 'sync-indicator online';
+    if (icon) icon.textContent = '☁️';
+    if (text) text.textContent = 'Nuvem';
+    indicator.title = 'Conectado ao JSONBin - dados sincronizados';
+  } else {
+    // Erro
+    indicator.className = 'sync-indicator error';
+    if (icon) icon.textContent = '⚠️';
+    if (text) text.textContent = 'Erro';
+    indicator.title = 'Erro na conexão com JSONBin';
+  }
+}
+
+// Função para sincronizar dados da nuvem ao iniciar
+async function initCloudSync() {
+  try {
+    if (window.jsonBinManager && window.jsonBinManager.isReady()) {
+      console.log('🔄 Sincronizando dados da nuvem...');
+      await window.jsonBinManager.syncFromCloud();
+    }
+    updateSyncIndicator();
+  } catch (error) {
+    console.error('Erro na sincronização:', error);
+  }
+}
+
+// Atualizar indicador a cada 10 segundos
+setInterval(updateSyncIndicator, 10000);
 
 document.addEventListener('DOMContentLoaded', boot);

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teste JSONBin</title>
+</head>
+<body>
+    <h1>Teste de Conexão JSONBin</h1>
+    <button onclick="testarConexao()">Testar Conexão</button>
+    <button onclick="criarBin()">Criar Bin</button>
+    <div id="resultado"></div>
+
+    <script>
+        const API_KEY = '$2a$10$i9A0vIh/R.b9FOGgwmaYsOYn68KPJWnd7erwIr2S9UwVODDdY.bzC';
+        const BASE_URL = 'https://api.jsonbin.io/v3';
+        
+        function log(msg) {
+            document.getElementById('resultado').innerHTML += '<p>' + msg + '</p>';
+            console.log(msg);
+        }
+        
+        async function testarConexao() {
+            log('🔍 Testando conexão com JSONBin...');
+            
+            try {
+                const response = await fetch(`${BASE_URL}/`, {
+                    headers: {
+                        'X-Master-Key': API_KEY
+                    }
+                });
+                
+                if (response.ok) {
+                    log('✅ Conexão OK com JSONBin');
+                    const data = await response.text();
+                    log('📄 Resposta: ' + data);
+                } else {
+                    log('❌ Erro na conexão: ' + response.status + ' ' + response.statusText);
+                }
+            } catch (error) {
+                log('❌ Erro: ' + error.message);
+            }
+        }
+        
+        async function criarBin() {
+            log('🚀 Criando bin de teste...');
+            
+            try {
+                const dadosTeste = {
+                    nome: 'controle-lavador-dados',
+                    dados: [
+                        {
+                            id: 'teste123',
+                            descricao: 'Primeiro teste',
+                            status: 'PROGRAMADO'
+                        }
+                    ],
+                    meta: {
+                        frentes: ['EVA', 'TESTE'],
+                        responsaveis: ['Sistema']
+                    },
+                    criado: new Date().toISOString()
+                };
+                
+                const response = await fetch(`${BASE_URL}/b`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Master-Key': API_KEY,
+                        'X-Bin-Name': 'controle-lavador-dados'
+                    },
+                    body: JSON.stringify(dadosTeste)
+                });
+                
+                if (response.ok) {
+                    const resultado = await response.json();
+                    log('✅ Bin criado com sucesso!');
+                    log('🆔 ID: ' + resultado.metadata.id);
+                    log('🌐 URL: https://jsonbin.io/v3/b/' + resultado.metadata.id);
+                    
+                    // Salvar ID para usar depois
+                    localStorage.setItem('jsonbin_bin_id', resultado.metadata.id);
+                } else {
+                    const erro = await response.text();
+                    log('❌ Erro ao criar bin: ' + response.status);
+                    log('📄 Detalhes: ' + erro);
+                }
+            } catch (error) {
+                log('❌ Erro: ' + error.message);
+            }
+        }
+        
+        // Testar automaticamente ao carregar
+        window.onload = () => {
+            log('🔧 Página carregada. Clique nos botões para testar.');
+        };
+    </script>
+</body>
+</html>
