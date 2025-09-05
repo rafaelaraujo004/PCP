@@ -137,6 +137,21 @@
       </header>
       <div class="modal-body">
         <p>Edite as frentes padrão (usadas em filtros e no formulário).</p>
+        
+        <!-- Seção de Recuperação de Dados -->
+        <div style="background: var(--panel-secondary, #f8f9fa); padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid var(--primary);">
+          <h4 style="margin: 0 0 10px; color: var(--primary);">☁️ Sincronização com Nuvem</h4>
+          <p style="margin: 0 0 10px; font-size: 14px; color: var(--muted);">
+            Se você limpou os dados do navegador ou está em um novo dispositivo, use esta opção para recuperar seus dados salvos.
+          </p>
+          <button id="btnRecuperarNuvem" type="button" class="primary" style="margin-right: 10px;">
+            📥 Recuperar Dados da Nuvem
+          </button>
+          <button id="btnTestarConexao" type="button" class="ghost">
+            🔍 Testar Conexão
+          </button>
+        </div>
+        
         <div class="grid-2">
           <div>
             <label>Frente 1 <input id="frente1" type="text" placeholder="EVA"></label>
@@ -376,6 +391,76 @@
         btnConfig.onclick = () => {
           console.log('Abrindo modal de config');
           configModal.showModal();
+        };
+      }
+      
+      // Botões de sincronização com nuvem
+      const btnRecuperarNuvem = document.getElementById('btnRecuperarNuvem');
+      const btnTestarConexao = document.getElementById('btnTestarConexao');
+      
+      if (btnRecuperarNuvem) {
+        btnRecuperarNuvem.onclick = async () => {
+          btnRecuperarNuvem.disabled = true;
+          btnRecuperarNuvem.textContent = '🔄 Recuperando...';
+          
+          try {
+            if (window.detectarRecuperacaoNecessaria) {
+              const recuperado = await window.detectarRecuperacaoNecessaria();
+              
+              if (!recuperado) {
+                // Forçar recuperação mesmo se houver dados locais
+                if (window.jsonBinManager) {
+                  const cloudData = await window.jsonBinManager.loadData();
+                  
+                  if (cloudData && cloudData.dados) {
+                    localStorage.setItem('controleLavador_dados_v1', JSON.stringify(cloudData.dados));
+                    localStorage.setItem('controleLavador_meta_v1', JSON.stringify(cloudData.meta || {}));
+                    
+                    alert(`✅ Dados recuperados com sucesso!\n${cloudData.dados.length} registros encontrados.\n\nA página será recarregada.`);
+                    setTimeout(() => window.location.reload(), 1000);
+                  } else {
+                    alert('❌ Nenhum dado encontrado na nuvem.');
+                  }
+                } else {
+                  alert('❌ Sistema de nuvem não disponível.');
+                }
+              }
+            } else {
+              alert('❌ Função de recuperação não disponível.');
+            }
+          } catch (error) {
+            console.error('Erro na recuperação:', error);
+            alert('❌ Erro ao recuperar dados: ' + error.message);
+          } finally {
+            btnRecuperarNuvem.disabled = false;
+            btnRecuperarNuvem.textContent = '📥 Recuperar Dados da Nuvem';
+          }
+        };
+      }
+      
+      if (btnTestarConexao) {
+        btnTestarConexao.onclick = async () => {
+          btnTestarConexao.disabled = true;
+          btnTestarConexao.textContent = '🔄 Testando...';
+          
+          try {
+            if (window.verificarChaveAPI) {
+              const resultado = await window.verificarChaveAPI();
+              if (resultado) {
+                alert('✅ Conexão com a nuvem funcionando perfeitamente!');
+              } else {
+                alert('❌ Problema na conexão. Verifique o console para detalhes.');
+              }
+            } else {
+              alert('❌ Sistema de teste não disponível.');
+            }
+          } catch (error) {
+            console.error('Erro no teste:', error);
+            alert('❌ Erro no teste: ' + error.message);
+          } finally {
+            btnTestarConexao.disabled = false;
+            btnTestarConexao.textContent = '🔍 Testar Conexão';
+          }
         };
       }
     });

@@ -425,8 +425,82 @@ window.verificarChaveAPI = async function() {
   }
 };
 
+// Função para detectar se dados locais foram limpos e recuperar da nuvem
+window.detectarRecuperacaoNecessaria = async function() {
+  const temDadosLocais = localStorage.getItem('controleLavador_dados_v1');
+  const dadosLocais = temDadosLocais ? JSON.parse(temDadosLocais) : [];
+  
+  console.log('🔍 Verificando necessidade de recuperação...');
+  console.log('📱 Dados locais encontrados:', dadosLocais.length);
+  
+  // Se não há dados locais, tentar recuperar da nuvem
+  if (dadosLocais.length === 0 && window.jsonBinManager) {
+    console.log('🔄 Tentando recuperar dados da nuvem...');
+    
+    try {
+      const cloudData = await window.jsonBinManager.loadData();
+      
+      if (cloudData && cloudData.dados && cloudData.dados.length > 0) {
+        console.log('✅ Dados recuperados da nuvem:', cloudData.dados.length, 'registros');
+        
+        // Restaurar dados locais
+        localStorage.setItem('controleLavador_dados_v1', JSON.stringify(cloudData.dados));
+        localStorage.setItem('controleLavador_meta_v1', JSON.stringify(cloudData.meta || {}));
+        
+        // Notificar usuário
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+          position: fixed; top: 20px; right: 20px; 
+          background: var(--success, #4CAF50); color: white; 
+          padding: 15px 20px; border-radius: 8px; 
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15); 
+          z-index: 1000; font-weight: 500;
+          border-left: 4px solid rgba(255,255,255,0.3);
+        `;
+        notification.innerHTML = `
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span>☁️</span>
+            <span>Dados recuperados da nuvem!</span>
+          </div>
+          <div style="font-size: 12px; opacity: 0.9; margin-top: 4px;">
+            ${cloudData.dados.length} registros restaurados
+          </div>
+        `;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+          if (notification.parentNode) {
+            document.body.removeChild(notification);
+          }
+        }, 5000);
+        
+        // Recarregar página para aplicar dados recuperados
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
+        
+        return true;
+      } else {
+        console.log('📭 Nenhum dado encontrado na nuvem para recuperar');
+        return false;
+      }
+    } catch (error) {
+      console.error('❌ Erro ao tentar recuperar dados:', error);
+      return false;
+    }
+  } else {
+    console.log('✅ Dados locais OK, nenhuma recuperação necessária');
+    return false;
+  }
+};
+
 // Executar verificação automática
 setTimeout(() => {
   console.log('🚀 Iniciando verificação automática...');
   window.verificarChaveAPI();
+  
+  // Verificar se precisa recuperar dados após limpar cache
+  setTimeout(() => {
+    window.detectarRecuperacaoNecessaria();
+  }, 2000);
 }, 3000);
