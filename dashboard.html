@@ -97,28 +97,36 @@
           root.classList.remove('light-theme');
           if (themeIcon) themeIcon.textContent = '🌙';
           if (btnTheme) btnTheme.title = 'Alternar para modo claro';
+          localStorage.setItem('controle-lavador-theme', 'dark');
           console.log('🌙 Mudou para modo escuro');
         } else {
           // Mudar para claro
           root.classList.add('light-theme');
           if (themeIcon) themeIcon.textContent = '☀️';
           if (btnTheme) btnTheme.title = 'Alternar para modo escuro';
+          localStorage.setItem('controle-lavador-theme', 'light');
           console.log('☀️ Mudou para modo claro');
         }
       }
     }
     
     function initThemeLocal() {
+      const savedTheme = localStorage.getItem('controle-lavador-theme') || 'dark';
       const root = document.documentElement;
       const themeIcon = document.getElementById('themeIcon');
       const btnTheme = document.getElementById('btnToggleTheme');
       
-      // Sempre iniciar no tema escuro
-      root.classList.remove('light-theme');
-      if (themeIcon) themeIcon.textContent = '🌙';
-      if (btnTheme) btnTheme.title = 'Alternar para modo claro';
+      if (savedTheme === 'light') {
+        root.classList.add('light-theme');
+        if (themeIcon) themeIcon.textContent = '☀️';
+        if (btnTheme) btnTheme.title = 'Alternar para modo escuro';
+      } else {
+        root.classList.remove('light-theme');
+        if (themeIcon) themeIcon.textContent = '🌙';
+        if (btnTheme) btnTheme.title = 'Alternar para modo claro';
+      }
       
-      console.log('🎨 Tema inicializado (local): dark');
+      console.log('🎨 Tema inicializado (local):', savedTheme);
     }
     
     // Função de teste para o tema

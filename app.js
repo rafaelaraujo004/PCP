@@ -119,7 +119,7 @@ const criarDataLocal = (dateStr) => {
   return new Date(dateStr);
 };
 
-let state = loadLocal(); // Carregamento inicial local (rápido para interface)
+let state = {dados: [], meta: {}}; // Estado inicial vazio
 
 // Função de inicialização assíncrona para carregar dados da nuvem
 const initializeWithCloudData = async () => {
