@@ -818,6 +818,16 @@ button {
   padding: 10px 16px;
 }
 
+/* Limitar largura e proporção dos gráficos do dashboard */
+.charts canvas {
+  width: 100% !important;
+  max-width: 400px;
+  height: auto !important;
+  aspect-ratio: 2/1;
+  display: block;
+  margin: 0 auto;
+}
+
 @media (max-width:1000px){
   .charts{grid-template-columns:1fr}
   .kpis{grid-template-columns:repeat(2,1fr)}
