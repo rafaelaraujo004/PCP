@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste das Modificações</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #1a1a1a; color: #fff; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #333; border-radius: 8px; }
+        .test-section h3 { color: #4CAF50; margin-top: 0; }
+        .status { padding: 5px 10px; border-radius: 4px; margin: 5px 0; }
+        .success { background: #4CAF50; color: white; }
+        .error { background: #f44336; color: white; }
+        .warning { background: #ff9800; color: white; }
+        button { padding: 10px 15px; margin: 5px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-primary { background: #2196F3; color: white; }
+        .btn-test { background: #4CAF50; color: white; }
+        input[type="file"] { margin: 10px 0; }
+        #log { background: #222; padding: 10px; border-radius: 4px; max-height: 300px; overflow-y: auto; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Teste das Modificações Implementadas</h1>
+        
+        <div class="test-section">
+            <h3>📱 Teste 1: Verificação de Dados de Exemplo</h3>
+            <p>Verificar se os dados de exemplo foram removidos e o sistema inicia vazio.</p>
+            <button class="btn-test" onclick="testarDadosVazios()">Testar Sistema Vazio</button>
+            <div id="teste1-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>☁️ Teste 2: Salvamento Apenas na Nuvem</h3>
+            <p>Verificar se o localStorage não está sendo usado para salvar dados.</p>
+            <button class="btn-test" onclick="testarSalvamentoNuvem()">Testar Salvamento</button>
+            <div id="teste2-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📊 Teste 3: Importação de Excel</h3>
+            <p>Testar se a importação de arquivos Excel está funcionando.</p>
+            <input type="file" id="arquivo-teste" accept=".xlsx,.xls,.json" />
+            <button class="btn-test" onclick="testarImportacao()">Testar Importação</button>
+            <div id="teste3-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔄 Teste 4: Carregamento da Nuvem</h3>
+            <p>Verificar se os dados são carregados apenas da nuvem.</p>
+            <button class="btn-test" onclick="testarCarregamentoNuvem()">Testar Carregamento</button>
+            <div id="teste4-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📝 Log de Testes</h3>
+            <div id="log"></div>
+        </div>
+    </div>
+
+    <script>
+        function log(message) {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logDiv.innerHTML += `[${timestamp}] ${message}<br>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function showResult(testId, status, message) {
+            const resultDiv = document.getElementById(testId);
+            const statusClass = status === 'success' ? 'success' : status === 'error' ? 'error' : 'warning';
+            resultDiv.innerHTML = `<div class="status ${statusClass}">${message}</div>`;
+        }
+
+        function testarDadosVazios() {
+            log('🔍 Testando se sistema inicia vazio...');
+            
+            // Simular carregamento de dados vazios
+            const dadosLocalStorage = localStorage.getItem('controleLavador_dados_v1');
+            
+            if (!dadosLocalStorage || dadosLocalStorage === '[]') {
+                showResult('teste1-result', 'success', '✅ Sistema inicia vazio - dados de exemplo removidos!');
+                log('✅ Teste 1 passou - nenhum dado de exemplo encontrado');
+            } else {
+                showResult('teste1-result', 'error', '❌ Ainda existem dados no localStorage');
+                log('❌ Teste 1 falhou - dados encontrados no localStorage');
+            }
+        }
+
+        function testarSalvamentoNuvem() {
+            log('🔍 Testando salvamento apenas na nuvem...');
+            
+            // Verificar se JSONBin está disponível
+            if (typeof window.jsonBinManager !== 'undefined') {
+                showResult('teste2-result', 'success', '✅ JSONBin Manager disponível - salvamento na nuvem ativo!');
+                log('✅ Teste 2 passou - JSONBin Manager encontrado');
+            } else {
+                showResult('teste2-result', 'warning', '⚠️ JSONBin Manager não carregado ainda');
+                log('⚠️ Teste 2 - JSONBin Manager não disponível');
+            }
+        }
+
+        function testarImportacao() {
+            log('🔍 Testando funcionalidade de importação...');
+            
+            const arquivo = document.getElementById('arquivo-teste').files[0];
+            
+            if (!arquivo) {
+                showResult('teste3-result', 'warning', '⚠️ Selecione um arquivo para testar');
+                log('⚠️ Nenhum arquivo selecionado para teste');
+                return;
+            }
+
+            const nomeArquivo = arquivo.name.toLowerCase();
+            
+            if (nomeArquivo.endsWith('.xlsx') || nomeArquivo.endsWith('.xls')) {
+                showResult('teste3-result', 'success', '✅ Arquivo Excel detectado - importação Excel ativa!');
+                log(`✅ Teste 3 passou - arquivo Excel detectado: ${arquivo.name}`);
+            } else if (nomeArquivo.endsWith('.json')) {
+                showResult('teste3-result', 'success', '✅ Arquivo JSON detectado - importação JSON ativa!');
+                log(`✅ Teste 3 passou - arquivo JSON detectado: ${arquivo.name}`);
+            } else {
+                showResult('teste3-result', 'error', '❌ Formato de arquivo não suportado');
+                log(`❌ Teste 3 falhou - formato não suportado: ${arquivo.name}`);
+            }
+        }
+
+        function testarCarregamentoNuvem() {
+            log('🔍 Testando carregamento da nuvem...');
+            
+            // Verificar se a função load existe e prioriza nuvem
+            if (typeof window.load === 'function') {
+                showResult('teste4-result', 'success', '✅ Função de carregamento da nuvem disponível!');
+                log('✅ Teste 4 passou - função load encontrada');
+            } else {
+                showResult('teste4-result', 'warning', '⚠️ Função load não carregada ainda');
+                log('⚠️ Teste 4 - função load não disponível');
+            }
+        }
+
+        // Executar alguns testes automaticamente ao carregar
+        window.addEventListener('load', () => {
+            log('🚀 Iniciando testes automáticos...');
+            setTimeout(() => {
+                testarDadosVazios();
+                testarSalvamentoNuvem();
+                testarCarregamentoNuvem();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

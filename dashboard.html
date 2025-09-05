@@ -97,36 +97,28 @@
           root.classList.remove('light-theme');
           if (themeIcon) themeIcon.textContent = '🌙';
           if (btnTheme) btnTheme.title = 'Alternar para modo claro';
-          localStorage.setItem('controle-lavador-theme', 'dark');
           console.log('🌙 Mudou para modo escuro');
         } else {
           // Mudar para claro
           root.classList.add('light-theme');
           if (themeIcon) themeIcon.textContent = '☀️';
           if (btnTheme) btnTheme.title = 'Alternar para modo escuro';
-          localStorage.setItem('controle-lavador-theme', 'light');
           console.log('☀️ Mudou para modo claro');
         }
       }
     }
     
     function initThemeLocal() {
-      const savedTheme = localStorage.getItem('controle-lavador-theme') || 'dark';
       const root = document.documentElement;
       const themeIcon = document.getElementById('themeIcon');
       const btnTheme = document.getElementById('btnToggleTheme');
       
-      if (savedTheme === 'light') {
-        root.classList.add('light-theme');
-        if (themeIcon) themeIcon.textContent = '☀️';
-        if (btnTheme) btnTheme.title = 'Alternar para modo escuro';
-      } else {
-        root.classList.remove('light-theme');
-        if (themeIcon) themeIcon.textContent = '🌙';
-        if (btnTheme) btnTheme.title = 'Alternar para modo claro';
-      }
+      // Sempre iniciar no tema escuro
+      root.classList.remove('light-theme');
+      if (themeIcon) themeIcon.textContent = '🌙';
+      if (btnTheme) btnTheme.title = 'Alternar para modo claro';
       
-      console.log('🎨 Tema inicializado (local):', savedTheme);
+      console.log('🎨 Tema inicializado (local): dark');
     }
     
     // Função de teste para o tema
@@ -165,12 +157,6 @@
       }
       if(typeof initConsumo === 'function') initConsumo();
       if(typeof renderDashboard === 'function') renderDashboard();
-      // Atualizar dashboard automaticamente quando os dados mudarem em outra aba
-      window.addEventListener('storage', function(e) {
-        if(e.key === 'controle-lavador-dados' || e.key === 'controle-lavador-meta') {
-          if(typeof renderDashboard === 'function') renderDashboard();
-        }
-      });
     });
   </script>
 </body>

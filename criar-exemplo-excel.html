@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criar Exemplo Excel</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #1a1a1a; color: #fff; }
+        .container { max-width: 600px; margin: 0 auto; }
+        button { padding: 10px 15px; margin: 5px; border: none; border-radius: 4px; cursor: pointer; background: #4CAF50; color: white; }
+        .info { background: #2196F3; padding: 15px; border-radius: 8px; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Criador de Exemplo Excel</h1>
+        
+        <div class="info">
+            <h3>📋 Modelo de Planilha</h3>
+            <p>Este script cria um arquivo Excel de exemplo com o formato correto para importação no sistema.</p>
+            <p><strong>Colunas obrigatórias:</strong></p>
+            <ul>
+                <li>Descrição</li>
+                <li>TAG</li>
+                <li>Tipo de Serviço</li>
+                <li>Paletes</li>
+                <li>Observações</li>
+                <li>OS</li>
+                <li>Setor Solicitante</li>
+                <li>Status</li>
+                <li>Responsável</li>
+                <li>Frente</li>
+                <li>Fim</li>
+            </ul>
+        </div>
+        
+        <button onclick="criarExemplo()">📁 Criar Arquivo Excel de Exemplo</button>
+    </div>
+
+    <script>
+        function criarExemplo() {
+            // Dados de exemplo no formato correto
+            const dadosExemplo = [
+                {
+                    'Descrição': 'COMANDO FINAL',
+                    'TAG': 'CF08',
+                    'Tipo de Serviço': 'LAVAGEM',
+                    'Paletes': 2,
+                    'Observações': 'DEMANDA ENGENHARIA',
+                    'OS': '4562410',
+                    'Setor Solicitante': 'COMANDO FINAL',
+                    'Status': 'FINALIZADO',
+                    'Responsável': 'DOMINGOS',
+                    'Frente': 'EVA',
+                    'Fim': '03/04/2025'
+                },
+                {
+                    'Descrição': 'ROLAMENTO PRINCIPAL',
+                    'TAG': 'RP60',
+                    'Tipo de Serviço': 'PINTURA',
+                    'Paletes': 1,
+                    'Observações': '-',
+                    'OS': '',
+                    'Setor Solicitante': 'EQUIPAMENTOS',
+                    'Status': 'FINALIZADO',
+                    'Responsável': 'DOMINGOS',
+                    'Frente': 'EVA',
+                    'Fim': '10/04/2025'
+                },
+                {
+                    'Descrição': 'CILINDRO DE ELEVAÇÃO D11',
+                    'TAG': 'CL13',
+                    'Tipo de Serviço': 'LAVAGEM',
+                    'Paletes': 1,
+                    'Observações': '-',
+                    'OS': '',
+                    'Setor Solicitante': 'EQUIPAMENTOS',
+                    'Status': 'EM PROCESSO',
+                    'Responsável': 'EUDO CONCEIÇÃO',
+                    'Frente': 'EVA',
+                    'Fim': '11/04/2025'
+                }
+            ];
+
+            // Criar planilha
+            const ws = XLSX.utils.json_to_sheet(dadosExemplo);
+            
+            // Definir larguras das colunas
+            ws['!cols'] = [
+                { wch: 25 }, // Descrição
+                { wch: 10 }, // TAG
+                { wch: 15 }, // Tipo de Serviço
+                { wch: 8 },  // Paletes
+                { wch: 20 }, // Observações
+                { wch: 10 }, // OS
+                { wch: 20 }, // Setor Solicitante
+                { wch: 12 }, // Status
+                { wch: 15 }, // Responsável
+                { wch: 15 }, // Frente
+                { wch: 12 }  // Fim
+            ];
+
+            // Criar workbook
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Registros');
+
+            // Gerar nome do arquivo
+            const agora = new Date();
+            const timestamp = agora.toISOString().slice(0, 10);
+            const nomeArquivo = `exemplo-importacao-${timestamp}.xlsx`;
+
+            // Salvar arquivo
+            XLSX.writeFile(wb, nomeArquivo);
+            
+            alert(`✅ Arquivo ${nomeArquivo} criado com sucesso!\n\nVocê pode usar este arquivo para testar a importação no sistema.`);
+        }
+    </script>
+</body>
+</html>

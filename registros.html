@@ -98,8 +98,8 @@
           <button id="btnNovo" class="primary action-btn">➕ Novo registro</button>
           <button id="btnConfig" class="ghost action-btn">⚙️ Configurações</button>
           <button id="btnExportar" class="ghost action-btn">📊 Exportar Excel</button>
-          <input id="importarArquivo" type="file" accept=".json" hidden />
-          <button id="btnImportar" class="ghost action-btn">📁 Importar JSON</button>
+          <input id="importarArquivo" type="file" accept=".json,.xlsx,.xls" hidden />
+          <button id="btnImportar" class="ghost action-btn">📁 Importar (Excel/JSON)</button>
           <button id="btnLimparTudo" class="danger action-btn">🗑️ Limpar tudo</button>
         </div>
       </div>
@@ -238,7 +238,7 @@
   </dialog>
 
   <footer class="footer">
-    <small>Feito em HTML, CSS e JavaScript • Dados armazenados no seu navegador (localStorage)</small>
+    <small>Feito em HTML, CSS e JavaScript • Dados armazenados na nuvem (JSONBin)</small>
   </footer>
 
   <script>
@@ -408,14 +408,11 @@
               const recuperado = await window.detectarRecuperacaoNecessaria();
               
               if (!recuperado) {
-                // Forçar recuperação mesmo se houver dados locais
+                // Forçar recuperação da nuvem
                 if (window.jsonBinManager) {
                   const cloudData = await window.jsonBinManager.loadData();
                   
                   if (cloudData && cloudData.dados) {
-                    localStorage.setItem('controleLavador_dados_v1', JSON.stringify(cloudData.dados));
-                    localStorage.setItem('controleLavador_meta_v1', JSON.stringify(cloudData.meta || {}));
-                    
                     alert(`✅ Dados recuperados com sucesso!\n${cloudData.dados.length} registros encontrados.\n\nA página será recarregada.`);
                     setTimeout(() => window.location.reload(), 1000);
                   } else {

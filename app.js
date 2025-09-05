@@ -2,14 +2,11 @@ const LS_KEY='controleLavador_dados_v1';const LS_META='controleLavador_meta_v1';
 const $=(s,c=document)=>c.querySelector(s);const $$=(s,c=document)=>Array.from(c.querySelectorAll(s));
 const uid=()=>Math.random().toString(36).slice(2,10);
 
-// Função de carregamento simples para fallback
-const loadLocal=()=>({dados:JSON.parse(localStorage.getItem(LS_KEY)||'[]'),meta:JSON.parse(localStorage.getItem(LS_META)||'{}')});
-
-// Função principal de carregamento - SEMPRE prioriza dados da nuvem
+// Função principal de carregamento - APENAS da nuvem
 const load = async () => {
-  console.log('🔄 Carregando dados com prioridade na nuvem...');
+  console.log('🔄 Carregando dados da nuvem...');
   
-  // Tentar carregar da nuvem primeiro
+  // Carregar APENAS da nuvem
   if (window.jsonBinManager && window.jsonBinManager.isReady()) {
     try {
       console.log('☁️ Carregando dados da nuvem...');
@@ -21,35 +18,19 @@ const load = async () => {
           meta: Object.keys(cloudData.meta || {}).length 
         });
         
-        // Salvar no localStorage como backup
-        localStorage.setItem(LS_KEY, JSON.stringify(cloudData.dados));
-        localStorage.setItem(LS_META, JSON.stringify(cloudData.meta || {}));
-        
         return {
           dados: cloudData.dados,
           meta: cloudData.meta || {}
         };
       }
     } catch (error) {
-      console.warn('⚠️ Erro ao carregar da nuvem, usando dados locais:', error);
+      console.warn('⚠️ Erro ao carregar da nuvem:', error);
     }
   }
   
-  // Fallback para dados locais se nuvem não estiver disponível
-  console.log('📱 Carregando dados locais...');
-  const localData = loadLocal();
-  
-  // Se temos dados locais e a nuvem está disponível, sincronizar para a nuvem
-  if (localData.dados.length > 0 && window.jsonBinManager && window.jsonBinManager.isReady()) {
-    try {
-      console.log('📤 Sincronizando dados locais para a nuvem...');
-      await window.jsonBinManager.saveData(localData.dados, localData.meta);
-    } catch (error) {
-      console.warn('⚠️ Erro ao sincronizar para nuvem:', error);
-    }
-  }
-  
-  return localData;
+  // Retornar dados vazios se nuvem não estiver disponível
+  console.log('📱 Nuvem não disponível - iniciando vazio');
+  return {dados: [], meta: {}};
 };
 
 const fmtData=v=>{
@@ -74,49 +55,32 @@ const fmtData=v=>{
   return d.toLocaleDateString('pt-BR');
 };
 
-// Função de salvamento atualizada - PRIORIZA salvamento na nuvem
+// Função de salvamento - APENAS na nuvem
 const save = async (d, m) => {
-  console.log('💾 Salvando dados com prioridade na nuvem:', { dados: d?.length || 0, meta: Object.keys(m || {}).length });
+  console.log('💾 Salvando dados na nuvem:', { dados: d?.length || 0, meta: Object.keys(m || {}).length });
   
-  let cloudSaved = false;
-  
-  // SEMPRE tentar salvar na nuvem primeiro
+  // APENAS salvar na nuvem
   if (window.jsonBinManager && window.jsonBinManager.isReady()) {
     try {
       console.log('☁️ Salvando na nuvem...');
       await window.jsonBinManager.saveData(d, m);
-      cloudSaved = true;
       console.log('✅ Dados salvos na nuvem com sucesso');
+      
+      // Atualizar indicador de status
+      if (typeof updateSyncIndicator === 'function') {
+        updateSyncIndicator();
+      }
+      
+      return true;
     } catch (error) {
       console.error('❌ Erro ao salvar na nuvem:', error);
-      // Continua para salvar localmente como fallback
+      alert('Erro ao salvar dados na nuvem. Verifique sua conexão.');
+      return false;
     }
   } else {
-    console.log('⚠️ JSONBin não disponível, salvando apenas localmente');
-  }
-  
-  // Salvar localmente (sempre, como backup ou fallback)
-  try {
-    localStorage.setItem(LS_KEY, JSON.stringify(d));
-    localStorage.setItem(LS_META, JSON.stringify(m));
-    console.log('📱 Dados salvos localmente');
-  } catch (error) {
-    console.error('❌ Erro ao salvar localmente:', error);
-  }
-  
-  // Atualizar indicador de status
-  if (typeof updateSyncIndicator === 'function') {
-    updateSyncIndicator();
-  }
-  
-  // Se não conseguiu salvar na nuvem, marcar para tentar novamente quando online
-  if (!cloudSaved && window.jsonBinManager) {
-    console.log('📝 Marcando dados para sincronização posterior');
-    // Marcar que há dados pendentes para sincronização
-    localStorage.setItem('pending_cloud_sync', 'true');
-  } else {
-    // Remove marca de pendência se salvou com sucesso
-    localStorage.removeItem('pending_cloud_sync');
+    console.error('⚠️ JSONBin não disponível - não é possível salvar');
+    alert('Serviço de nuvem não disponível. Dados não foram salvos.');
+    return false;
   }
 };
 const fmtDataISO=v=>{
@@ -184,18 +148,7 @@ const initializeWithCloudData = async () => {
 // Aplicar dados padrão se necessário (executa na inicialização local)
 if(!state.meta.frentes){state.meta.frentes=["EVA","EUDO CONCEIÇÃO","VICENTE DE PAULA","FRENTE 4"];}
 if(!state.meta.responsaveis){state.meta.responsaveis=["DOMINGOS","EUDO CONCEIÇÃO","VICENTE DE PAULA"];}
-if(state.dados.length===0){
-  state.dados=[
-    {id:uid(),descricao:"COMANDO FINAL",tag1:"CF08",tag2:"LAVAGEM",paletes:2,observacoes:"DEMANDA ENGENHARIA",os:"4562410",setor:"COMANDO FINAL",status:"FINALIZADO",responsavel:"DOMINGOS",frente:"EVA",fim:"2025-04-03"},
-    {id:uid(),descricao:"ROLAMENTO PRINCIPAL",tag1:"RP60",tag2:"PINTURA",paletes:1,observacoes:"-",os:"",setor:"EQUIPAMENTOS",status:"FINALIZADO",responsavel:"DOMINGOS",frente:"EVA",fim:"2025-04-10"},
-    {id:uid(),descricao:"COMANDO FINAL",tag1:"CF77",tag2:"LAVAGEM",paletes:3,observacoes:"-",os:"4676911",setor:"EQUIPAMENTOS",status:"FINALIZADO",responsavel:"DOMINGOS",frente:"EVA",fim:"2025-04-10"},
-    {id:uid(),descricao:"TRANSMISSÃO 777F",tag1:"RD19",tag2:"PINTURA",paletes:2,observacoes:"-",os:"4541158",setor:"EQUIPAMENTOS",status:"FINALIZADO",responsavel:"DOMINGOS",frente:"EUDO CONCEIÇÃO",fim:"2025-04-10"},
-    {id:uid(),descricao:"CILINDRO DE ELEVAÇÃO D11",tag1:"CL13",tag2:"LAVAGEM",paletes:1,observacoes:"-",os:"",setor:"EQUIPAMENTOS",status:"EM PROCESSO",responsavel:"EUDO CONCEIÇÃO",frente:"EVA",fim:"2025-04-11"},
-    {id:uid(),descricao:"CONCHA EX-2500",tag1:"CN18",tag2:"PINTURA",paletes:1,observacoes:"-",os:"",setor:"COMPONENTES",status:"FINALIZADO",responsavel:"EUDO CONCEIÇÃO",frente:"VICENTE DE PAULA",fim:"2025-04-16"}
-  ];
-  state.meta.consumo=4656855; 
-  save(state.dados,state.meta); // Salvar dados padrão na nuvem
-}
+// Dados de exemplo removidos - sistema inicia vazio
 function initTabs(){
   // Nova funcionalidade para abrir em ambientes separados
   $$('.tab').forEach(b=>b.addEventListener('click',(e)=>{
@@ -587,6 +540,89 @@ function exportarExcel(){
   XLSX.writeFile(wb, nomeArquivo);
 }
 
+// Função para importar dados de Excel
+function importarExcel(arquivo) {
+  if(typeof XLSX === 'undefined') {
+    alert('Biblioteca de Excel não carregada. Use a importação JSON.');
+    return;
+  }
+  
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, {type: 'array'});
+      
+      // Procurar pela aba "Registros" ou usar a primeira aba
+      let worksheetName = 'Registros';
+      if (!workbook.SheetNames.includes(worksheetName)) {
+        worksheetName = workbook.SheetNames[0];
+      }
+      
+      const worksheet = workbook.Sheets[worksheetName];
+      const jsonData = XLSX.utils.sheet_to_json(worksheet);
+      
+      if (jsonData.length === 0) {
+        alert('Nenhum dado encontrado na planilha.');
+        return;
+      }
+      
+      // Mapear os dados do Excel para o formato do sistema
+      const dadosImportados = jsonData.map(row => {
+        return {
+          id: uid(),
+          descricao: row['Descrição'] || row['descricao'] || '',
+          tag1: row['TAG'] || row['tag1'] || '',
+          tag2: row['Tipo de Serviço'] || row['tag2'] || '',
+          paletes: Number(row['Paletes'] || row['paletes'] || 0),
+          observacoes: row['Observações'] || row['observacoes'] || '',
+          os: row['OS'] || row['os'] || '',
+          setor: row['Setor Solicitante'] || row['setor'] || '',
+          status: row['Status'] || row['status'] || 'PROGRAMADO',
+          responsavel: row['Responsável'] || row['responsavel'] || '',
+          frente: row['Frente'] || row['frente'] || '',
+          fim: row['Fim'] || row['fim'] || ''
+        };
+      });
+      
+      // Confirmar importação
+      const confirmar = confirm(`Encontrados ${dadosImportados.length} registros. Deseja importar? Isso substituirá todos os dados atuais.`);
+      
+      if (confirmar) {
+        state.dados = dadosImportados;
+        
+        // Atualizar listas auxiliares com novos valores únicos
+        const novasFrente = [...new Set(dadosImportados.map(d => d.frente).filter(f => f))];
+        const novosResponsaveis = [...new Set(dadosImportados.map(d => d.responsavel).filter(r => r))];
+        
+        if (novasFrente.length > 0) {
+          state.meta.frentes = [...new Set([...state.meta.frentes || [], ...novasFrente])];
+        }
+        if (novosResponsaveis.length > 0) {
+          state.meta.responsaveis = [...new Set([...state.meta.responsaveis || [], ...novosResponsaveis])];
+        }
+        
+        // Salvar na nuvem
+        save(state.dados, state.meta).then(success => {
+          if (success) {
+            initConsumo();
+            preencherListasAuxiliares();
+            renderTable();
+            renderDashboard();
+            alert('Dados importados com sucesso!');
+          }
+        });
+      }
+      
+    } catch (error) {
+      console.error('Erro ao importar Excel:', error);
+      alert('Erro ao ler arquivo Excel: ' + error.message);
+    }
+  };
+  
+  reader.readAsArrayBuffer(arquivo);
+}
+
 function bindToolbar(){
   const btnNovo = $('#btnNovo');
   const btnExportar = $('#btnExportar');
@@ -610,27 +646,43 @@ function bindToolbar(){
     importarArquivo.addEventListener('change', e => {
       const f = e.target.files[0];
       if (!f) return;
-      const r = new FileReader();
-      r.onload = () => {
-        try {
-          const obj = JSON.parse(r.result);
-          if (Array.isArray(obj.dados)) {
-            state.dados = obj.dados;
-            if (obj.meta) state.meta = {...state.meta, ...obj.meta};
-            save(state.dados, state.meta);
-            initConsumo();
-            preencherListasAuxiliares();
-            renderTable();
-            renderDashboard();
-            alert('Importado com sucesso!');
-          } else {
-            alert('Arquivo inválido. Esperado formato: {dados: [...], meta: {...}}');
+      
+      // Detectar tipo de arquivo pela extensão
+      const nomeArquivo = f.name.toLowerCase();
+      
+      if (nomeArquivo.endsWith('.xlsx') || nomeArquivo.endsWith('.xls')) {
+        // Importar Excel
+        importarExcel(f);
+      } else {
+        // Importar JSON
+        const r = new FileReader();
+        r.onload = () => {
+          try {
+            const obj = JSON.parse(r.result);
+            if (Array.isArray(obj.dados)) {
+              state.dados = obj.dados;
+              if (obj.meta) state.meta = {...state.meta, ...obj.meta};
+              save(state.dados, state.meta).then(success => {
+                if (success) {
+                  initConsumo();
+                  preencherListasAuxiliares();
+                  renderTable();
+                  renderDashboard();
+                  alert('Importado com sucesso!');
+                }
+              });
+            } else {
+              alert('Arquivo inválido. Esperado formato: {dados: [...], meta: {...}}');
+            }
+          } catch (err) {
+            alert('Erro ao ler arquivo: ' + err.message);
           }
-        } catch (err) {
-          alert('Erro ao ler arquivo: ' + err.message);
-        }
-      };
-      r.readAsText(f);
+        };
+        r.readAsText(f);
+      }
+      
+      // Limpar o input para permitir reimportar o mesmo arquivo
+      e.target.value = '';
     });
   }
   
