@@ -1,94 +1,57 @@
 const LS_KEY='controleLavador_dados_v1';const LS_META='controleLavador_meta_v1';
 const $=(s,c=document)=>c.querySelector(s);const $$=(s,c=document)=>Array.from(c.querySelectorAll(s));
 const uid=()=>Math.random().toString(36).slice(2,10);
-const load=()=>({dados:JSON.parse(localStorage.getItem(LS_KEY)||'[]'),meta:JSON.parse(localStorage.getItem(LS_META)||'{}')});
 
-// Função para carregar dados com prioridade na nuvem
-const loadWithCloudSync = async () => {
-  console.log('🔄 Iniciando carregamento de dados...');
+// Função de carregamento simples para fallback
+const loadLocal=()=>({dados:JSON.parse(localStorage.getItem(LS_KEY)||'[]'),meta:JSON.parse(localStorage.getItem(LS_META)||'{}')});
+
+// Função principal de carregamento - SEMPRE prioriza dados da nuvem
+const load = async () => {
+  console.log('🔄 Carregando dados com prioridade na nuvem...');
   
-  // Primeiro, carregar dados locais
-  let localData = load();
-  console.log('📱 Dados locais encontrados:', { dados: localData.dados.length, temMeta: Object.keys(localData.meta).length > 0 });
-  
-  // Tentar carregar da nuvem se disponível
-  if (window.jsonBinManager) {
+  // Tentar carregar da nuvem primeiro
+  if (window.jsonBinManager && window.jsonBinManager.isReady()) {
     try {
-      console.log('☁️ Tentando carregar dados da nuvem...');
+      console.log('☁️ Carregando dados da nuvem...');
       const cloudData = await window.jsonBinManager.loadData();
       
       if (cloudData && cloudData.dados) {
-        console.log('✅ Dados da nuvem carregados:', { dados: cloudData.dados.length, temMeta: Object.keys(cloudData.meta || {}).length > 0 });
+        console.log('✅ Dados da nuvem carregados:', { 
+          dados: cloudData.dados.length, 
+          meta: Object.keys(cloudData.meta || {}).length 
+        });
         
-        // Se temos dados na nuvem, verificar qual é mais recente
-        const localCount = localData.dados.length;
-        const cloudCount = cloudData.dados.length;
+        // Salvar no localStorage como backup
+        localStorage.setItem(LS_KEY, JSON.stringify(cloudData.dados));
+        localStorage.setItem(LS_META, JSON.stringify(cloudData.meta || {}));
         
-        // Se a nuvem tem mais dados ou se local está vazio, usar dados da nuvem
-        if (cloudCount > localCount || localCount === 0) {
-          console.log('📥 Usando dados da nuvem (mais recentes)');
-          
-          // Salvar dados da nuvem localmente para sincronizar
-          localStorage.setItem(LS_KEY, JSON.stringify(cloudData.dados));
-          localStorage.setItem(LS_META, JSON.stringify(cloudData.meta || {}));
-          
-          return {
-            dados: cloudData.dados,
-            meta: { ...localData.meta, ...cloudData.meta }
-          };
-        } else {
-          console.log('📱 Usando dados locais (mais recentes)');
-          
-          // Se local tem mais dados, sincronizar para a nuvem
-          if (localCount > cloudCount) {
-            console.log('📤 Sincronizando dados locais para a nuvem...');
-            await window.jsonBinManager.saveData(localData.dados, localData.meta);
-          }
-        }
-      } else {
-        console.log('🌐 Nenhum dado encontrado na nuvem');
-        
-        // Se não há dados na nuvem mas temos dados locais, enviar para nuvem
-        if (localData.dados.length > 0) {
-          console.log('📤 Enviando dados locais para a nuvem...');
-          await window.jsonBinManager.saveData(localData.dados, localData.meta);
-        }
+        return {
+          dados: cloudData.dados,
+          meta: cloudData.meta || {}
+        };
       }
     } catch (error) {
-      console.error('❌ Erro ao carregar da nuvem:', error);
+      console.warn('⚠️ Erro ao carregar da nuvem, usando dados locais:', error);
     }
-  } else {
-    console.log('⚠️ JSONBin Manager não disponível, usando dados locais');
+  }
+  
+  // Fallback para dados locais se nuvem não estiver disponível
+  console.log('📱 Carregando dados locais...');
+  const localData = loadLocal();
+  
+  // Se temos dados locais e a nuvem está disponível, sincronizar para a nuvem
+  if (localData.dados.length > 0 && window.jsonBinManager && window.jsonBinManager.isReady()) {
+    try {
+      console.log('📤 Sincronizando dados locais para a nuvem...');
+      await window.jsonBinManager.saveData(localData.dados, localData.meta);
+    } catch (error) {
+      console.warn('⚠️ Erro ao sincronizar para nuvem:', error);
+    }
   }
   
   return localData;
 };
 
-// Função de salvamento atualizada para incluir JSONBin
-const save = async (d, m) => {
-  console.log('💾 Função save chamada com:', { dados: d?.length || 0, meta: Object.keys(m || {}).length });
-  
-  // Sempre salvar no localStorage primeiro (funciona offline)
-  localStorage.setItem(LS_KEY, JSON.stringify(d));
-  localStorage.setItem(LS_META, JSON.stringify(m));
-  
-  // Tentar salvar na nuvem se disponível
-  if (window.jsonBinManager) {
-    console.log('🌐 JSONBin Manager encontrado, tentando salvar na nuvem...');
-    try {
-      await window.jsonBinManager.saveData(d, m);
-    } catch (error) {
-      console.error('❌ Erro ao salvar na nuvem:', error);
-    }
-  } else {
-    console.log('⚠️ JSONBin Manager não encontrado');
-  }
-  
-  // Atualizar indicador de status
-  if (typeof updateSyncIndicator === 'function') {
-    updateSyncIndicator();
-  }
-};
 const fmtData=v=>{
   if(!v) return '';
   
@@ -109,6 +72,52 @@ const fmtData=v=>{
   
   // Converte para formato brasileiro
   return d.toLocaleDateString('pt-BR');
+};
+
+// Função de salvamento atualizada - PRIORIZA salvamento na nuvem
+const save = async (d, m) => {
+  console.log('💾 Salvando dados com prioridade na nuvem:', { dados: d?.length || 0, meta: Object.keys(m || {}).length });
+  
+  let cloudSaved = false;
+  
+  // SEMPRE tentar salvar na nuvem primeiro
+  if (window.jsonBinManager && window.jsonBinManager.isReady()) {
+    try {
+      console.log('☁️ Salvando na nuvem...');
+      await window.jsonBinManager.saveData(d, m);
+      cloudSaved = true;
+      console.log('✅ Dados salvos na nuvem com sucesso');
+    } catch (error) {
+      console.error('❌ Erro ao salvar na nuvem:', error);
+      // Continua para salvar localmente como fallback
+    }
+  } else {
+    console.log('⚠️ JSONBin não disponível, salvando apenas localmente');
+  }
+  
+  // Salvar localmente (sempre, como backup ou fallback)
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify(d));
+    localStorage.setItem(LS_META, JSON.stringify(m));
+    console.log('📱 Dados salvos localmente');
+  } catch (error) {
+    console.error('❌ Erro ao salvar localmente:', error);
+  }
+  
+  // Atualizar indicador de status
+  if (typeof updateSyncIndicator === 'function') {
+    updateSyncIndicator();
+  }
+  
+  // Se não conseguiu salvar na nuvem, marcar para tentar novamente quando online
+  if (!cloudSaved && window.jsonBinManager) {
+    console.log('📝 Marcando dados para sincronização posterior');
+    // Marcar que há dados pendentes para sincronização
+    localStorage.setItem('pending_cloud_sync', 'true');
+  } else {
+    // Remove marca de pendência se salvou com sucesso
+    localStorage.removeItem('pending_cloud_sync');
+  }
 };
 const fmtDataISO=v=>{
   if(!v) return '';
@@ -146,57 +155,47 @@ const criarDataLocal = (dateStr) => {
   return new Date(dateStr);
 };
 
-let state = load(); // Carregamento inicial local (rápido)
+let state = loadLocal(); // Carregamento inicial local (rápido para interface)
 
 // Função de inicialização assíncrona para carregar dados da nuvem
-const initApp = async () => {
-  console.log('🚀 Inicializando aplicação...');
-  
-  // Aguardar JSONBin Manager estar disponível
-  if (window.jsonBinManager) {
-    try {
-      // Carregar dados da nuvem com sincronização inteligente
-      state = await loadWithCloudSync();
-      
-      // Configurar valores padrão se necessário
-      if(!state.meta.frentes){state.meta.frentes=["EVA","EUDO CONCEIÇÃO","VICENTE DE PAULA","FRENTE 4"];}
-      if(!state.meta.responsaveis){state.meta.responsaveis=["DOMINGOS","EUDO CONCEIÇÃO","VICENTE DE PAULA"];}
-      
-      // Limpar dados antigos na primeira execução após atualização (apenas se local estiver vazio)
-      if(localStorage.getItem('dados_limpos') !== 'true' && state.dados.length === 0) {
-        state.dados = [];
-        state.meta.consumo = 0;
-        localStorage.setItem('dados_limpos', 'true');
-        await save(state.dados, state.meta);
-      }
-      
-      // Re-renderizar interface com dados atualizados
-      initConsumo();
-      preencherListasAuxiliares();
-      renderTable();
-      renderDashboard();
-      
-      console.log('✅ Aplicação inicializada com dados da nuvem');
-    } catch (error) {
-      console.error('❌ Erro na inicialização:', error);
-    }
-  } else {
-    console.log('⚠️ JSONBin não disponível, usando dados locais');
+const initializeWithCloudData = async () => {
+  try {
+    console.log('🔄 Inicializando com dados da nuvem...');
+    const cloudState = await load();
+    
+    // Atualizar state global com dados da nuvem
+    state = cloudState;
+    
+    // Garantir estruturas padrão se necessário
+    if(!state.meta.frentes){state.meta.frentes=["EVA","EUDO CONCEIÇÃO","VICENTE DE PAULA","FRENTE 4"];}
+    if(!state.meta.responsaveis){state.meta.responsaveis=["DOMINGOS","EUDO CONCEIÇÃO","VICENTE DE PAULA"];}
+    
+    // Rerender interface com dados atualizados
+    if (typeof renderTable === 'function') renderTable();
+    if (typeof renderDashboard === 'function') renderDashboard();
+    if (typeof preencherListasAuxiliares === 'function') preencherListasAuxiliares();
+    
+    console.log('✅ Interface atualizada com dados da nuvem');
+  } catch (error) {
+    console.error('❌ Erro ao inicializar com dados da nuvem:', error);
   }
 };
 
-// Configurar valores padrão para inicialização rápida local
+// Aplicar dados padrão se necessário (executa na inicialização local)
 if(!state.meta.frentes){state.meta.frentes=["EVA","EUDO CONCEIÇÃO","VICENTE DE PAULA","FRENTE 4"];}
 if(!state.meta.responsaveis){state.meta.responsaveis=["DOMINGOS","EUDO CONCEIÇÃO","VICENTE DE PAULA"];}
-
-// Executar inicialização assíncrona quando JSONBin estiver pronto
-document.addEventListener('DOMContentLoaded', () => {
-  // Dar tempo para todos os scripts carregarem
-  setTimeout(() => {
-    initApp();
-  }, 1000);
-});
-
+if(state.dados.length===0){
+  state.dados=[
+    {id:uid(),descricao:"COMANDO FINAL",tag1:"CF08",tag2:"LAVAGEM",paletes:2,observacoes:"DEMANDA ENGENHARIA",os:"4562410",setor:"COMANDO FINAL",status:"FINALIZADO",responsavel:"DOMINGOS",frente:"EVA",fim:"2025-04-03"},
+    {id:uid(),descricao:"ROLAMENTO PRINCIPAL",tag1:"RP60",tag2:"PINTURA",paletes:1,observacoes:"-",os:"",setor:"EQUIPAMENTOS",status:"FINALIZADO",responsavel:"DOMINGOS",frente:"EVA",fim:"2025-04-10"},
+    {id:uid(),descricao:"COMANDO FINAL",tag1:"CF77",tag2:"LAVAGEM",paletes:3,observacoes:"-",os:"4676911",setor:"EQUIPAMENTOS",status:"FINALIZADO",responsavel:"DOMINGOS",frente:"EVA",fim:"2025-04-10"},
+    {id:uid(),descricao:"TRANSMISSÃO 777F",tag1:"RD19",tag2:"PINTURA",paletes:2,observacoes:"-",os:"4541158",setor:"EQUIPAMENTOS",status:"FINALIZADO",responsavel:"DOMINGOS",frente:"EUDO CONCEIÇÃO",fim:"2025-04-10"},
+    {id:uid(),descricao:"CILINDRO DE ELEVAÇÃO D11",tag1:"CL13",tag2:"LAVAGEM",paletes:1,observacoes:"-",os:"",setor:"EQUIPAMENTOS",status:"EM PROCESSO",responsavel:"EUDO CONCEIÇÃO",frente:"EVA",fim:"2025-04-11"},
+    {id:uid(),descricao:"CONCHA EX-2500",tag1:"CN18",tag2:"PINTURA",paletes:1,observacoes:"-",os:"",setor:"COMPONENTES",status:"FINALIZADO",responsavel:"EUDO CONCEIÇÃO",frente:"VICENTE DE PAULA",fim:"2025-04-16"}
+  ];
+  state.meta.consumo=4656855; 
+  save(state.dados,state.meta); // Salvar dados padrão na nuvem
+}
 function initTabs(){
   // Nova funcionalidade para abrir em ambientes separados
   $$('.tab').forEach(b=>b.addEventListener('click',(e)=>{
@@ -272,6 +271,7 @@ function renderDashboard(){const total=state.dados.length; const programado=stat
     },
     options:{
       responsive:true,
+      maintainAspectRatio:false,
       plugins:{
         legend:{display:false},
         tooltip:{
@@ -326,6 +326,7 @@ function renderDashboard(){const total=state.dados.length; const programado=stat
     },
     options:{
       responsive:true,
+      maintainAspectRatio:false,
       cutout:'50%',
       radius:'70%',
       plugins:{
@@ -409,6 +410,7 @@ function renderDashboard(){const total=state.dados.length; const programado=stat
     },
     options:{
       responsive:true,
+      maintainAspectRatio:false,
       plugins:{
         legend:{display:false},
         tooltip:{
@@ -862,6 +864,9 @@ function boot(){
     
     // Inicializar sincronização na nuvem
     setTimeout(initCloudSync, 2000); // Aguardar 2 segundos para garantir que JSONBin carregou
+    
+    // Carregar dados da nuvem após um delay
+    setTimeout(initializeWithCloudData, 3000); // Aguardar 3 segundos para carregar dados da nuvem
     
     // Verificar se estamos na página principal
     const welcomeScreen = document.querySelector('.welcome-screen');

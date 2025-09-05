@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste - Sistema de Dados na Nuvem</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app">
+        <header class="app-header">
+            <div class="brand">
+                <div class="logo"></div>
+                <h1>Teste - Sistema de Dados na Nuvem</h1>
+            </div>
+        </header>
+        
+        <main class="container">
+            <div class="actions" style="padding: 20px;">
+                <h2>Status da Sincronização</h2>
+                <div style="margin: 20px 0;">
+                    <p><strong>Total de registros:</strong> <span id="totalRegistros">0</span></p>
+                    <p><strong>Status da nuvem:</strong> <span id="statusNuvem">Verificando...</span></p>
+                    <p><strong>Última sincronização:</strong> <span id="ultimaSync">Nunca</span></p>
+                </div>
+                
+                <div style="margin: 20px 0;">
+                    <button id="btnAddTeste" class="primary action-btn">➕ Adicionar Teste</button>
+                    <button id="btnSyncManual" class="ghost action-btn">🔄 Sincronizar Agora</button>
+                    <button id="btnLimparLocal" class="danger action-btn">🗑️ Limpar Local</button>
+                    <button id="btnCarregarNuvem" class="warning action-btn">☁️ Carregar da Nuvem</button>
+                </div>
+                
+                <div id="registros" style="margin-top: 20px;">
+                    <h3>Registros Atuais:</h3>
+                    <ul id="listaRegistros"></ul>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="jsonbin-config.js"></script>
+    <script src="app.js"></script>
+    
+    <script>
+        let testCounter = 1;
+        
+        function updateDisplay() {
+            document.getElementById('totalRegistros').textContent = state.dados.length;
+            
+            const lista = document.getElementById('listaRegistros');
+            lista.innerHTML = '';
+            
+            state.dados.slice(-10).forEach(registro => {
+                const li = document.createElement('li');
+                li.textContent = `${registro.descricao} - ${registro.status} (${registro.responsavel})`;
+                lista.appendChild(li);
+            });
+            
+            // Status da nuvem
+            if (window.jsonBinManager && window.jsonBinManager.isReady()) {
+                document.getElementById('statusNuvem').textContent = 'Conectado ✅';
+            } else {
+                document.getElementById('statusNuvem').textContent = 'Offline ❌';
+            }
+            
+            document.getElementById('ultimaSync').textContent = new Date().toLocaleString();
+        }
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('🧪 Teste iniciado');
+            
+            // Aguardar inicialização
+            setTimeout(updateDisplay, 1000);
+            
+            document.getElementById('btnAddTeste').onclick = async () => {
+                const novoRegistro = {
+                    id: Math.random().toString(36).slice(2,10),
+                    descricao: `Teste ${testCounter++}`,
+                    tag1: 'TEST',
+                    tag2: 'SISTEMA',
+                    paletes: 1,
+                    observacoes: 'Registro de teste',
+                    os: '',
+                    setor: 'TESTE',
+                    status: 'PROGRAMADO',
+                    responsavel: 'SISTEMA',
+                    frente: 'TESTE',
+                    fim: new Date().toISOString().slice(0,10)
+                };
+                
+                state.dados.push(novoRegistro);
+                await save(state.dados, state.meta);
+                updateDisplay();
+                console.log('✅ Registro adicionado');
+            };
+            
+            document.getElementById('btnSyncManual').onclick = async () => {
+                if (window.jsonBinManager) {
+                    await window.jsonBinManager.syncPendingData();
+                    updateDisplay();
+                    console.log('🔄 Sincronização manual executada');
+                }
+            };
+            
+            document.getElementById('btnLimparLocal').onclick = () => {
+                if (confirm('Limpar dados locais? (dados na nuvem permanecerão)')) {
+                    localStorage.clear();
+                    state.dados = [];
+                    state.meta = {};
+                    updateDisplay();
+                    console.log('🗑️ Dados locais limpos');
+                }
+            };
+            
+            document.getElementById('btnCarregarNuvem').onclick = async () => {
+                try {
+                    const cloudState = await load();
+                    state = cloudState;
+                    updateDisplay();
+                    console.log('☁️ Dados carregados da nuvem');
+                } catch (error) {
+                    console.error('❌ Erro ao carregar da nuvem:', error);
+                }
+            };
+            
+            // Atualizar display a cada 5 segundos
+            setInterval(updateDisplay, 5000);
+        });
+    </script>
+</body>
+</html>
